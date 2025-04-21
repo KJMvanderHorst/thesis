@@ -15,6 +15,15 @@ import numpy as np
 from signals import *
 
 class SyntheticSignalGenerator:
+    """
+    A class to generate synthetic signals with various modulation types.
+    Attributes:
+        k (int): Number of frequency segments.
+        fmin (float): Minimum frequency.
+        fmax (float): Maximum frequency.
+        duration (float): Duration of the signal in seconds.
+        sample_rate (int): Sample rate for the signal generation.
+    """
     def __init__(self, k, fmin, fmax, duration, sample_rate):
         self.k = k
         self.fmin = fmin
@@ -22,13 +31,27 @@ class SyntheticSignalGenerator:
         self.duration = duration
         self.sample_rate = sample_rate
 
-    def generate(self):
+    def generate(self, signal_types):
+        """
+        Generate a synthetic dataset of signals with various modulation types.
+        The signals are generated based on the specified parameters such as
+        frequency range, duration, and sample rate.
+        Args:
+            signal_types (list): List of signal types to generate. Options include:
+                'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
+                'amfm', 'intermittent', and 'sine'.
+        Returns:
+            composite_signal (numpy.ndarray): The generated composite signal.
+            components (list): A list of individual signal components.
+        """
+        # Generate frequency segments
         B_segments = np.linspace(self.fmin, self.fmax, self.k + 1)
         components = []
 
         for i in range(self.k):
             f0 = (B_segments[i] + B_segments[i + 1]) / 2
-            signal_type = np.random.choice(['linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm', 'amfm', 'intermittent', 'sine'])
+            signal_type = np.random.choice(signal_types)
+            # Randomly select a signal type from the provided list
 
             if signal_type == 'linear_am':
                 signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
@@ -53,11 +76,3 @@ class SyntheticSignalGenerator:
         composite_signal = np.sum(components, axis=0)
         return composite_signal, components
     
-#quick test if this works
-if __name__ == "__main__":
-    print('starting test')
-    # Example usage
-    generator = SyntheticSignalGenerator(k=5, fmin=1, fmax=10, duration=1, sample_rate=10)
-    composite_signal, components = generator.generate()
-    print("Composite Signal:", composite_signal)
-    print("Components:", components)
