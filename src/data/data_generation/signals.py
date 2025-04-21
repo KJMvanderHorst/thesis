@@ -1,7 +1,35 @@
+"""
+signals.py
+
+This module provides classes for generating various types of signals, including
+Amplitude Modulation (AM), Frequency Modulation (FM), and combinations of these.
+It also includes support for intermittent signals and stationary sine waves.
+
+Classes:
+    LinearAMSignal: Generates a linear amplitude-modulated signal.
+    SinusoidalAMSignal: Generates a sinusoidal amplitude-modulated signal.
+    LinearFMSignal: Generates a linear frequency-modulated signal.
+    SinusoidalFMSignal: Generates a sinusoidal frequency-modulated signal.
+    AMFMSignal: Combines AM and FM signals.
+    IntermittentSignal: Generates an intermittent signal based on a base signal.
+    SineSignal: Generates a stationary sine wave signal.
+"""
+
 import numpy as np
 
-# Linear Amplitude Modulation
 class LinearAMSignal:
+    """
+    Generates a linear amplitude-modulated (AM) signal.
+
+    Args:
+        b (float): Slope of the amplitude modulation.
+        a (float): Intercept of the amplitude modulation.
+        fam (float): Frequency of the carrier signal (Hz).
+        phi (float): Phase of the carrier signal (radians).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, b, a, fam, phi, duration, sample_rate):
         self.b = b
         self.a = a
@@ -11,12 +39,30 @@ class LinearAMSignal:
         self.sample_rate = sample_rate
 
     def generate(self):
+        """
+        Generates the linear AM signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         A_t = self.b * t + self.a
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
-# Sinusoidal Amplitude Modulation
+
 class SinusoidalAMSignal:
+    """
+    Generates a sinusoidal amplitude-modulated (AM) signal.
+
+    Args:
+        fs (float): Frequency of the amplitude modulation (Hz).
+        phi_s (float): Phase of the amplitude modulation (radians).
+        fam (float): Frequency of the carrier signal (Hz).
+        phi (float): Phase of the carrier signal (radians).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, fs, phi_s, fam, phi, duration, sample_rate):
         self.fs = fs
         self.phi_s = phi_s
@@ -26,12 +72,30 @@ class SinusoidalAMSignal:
         self.sample_rate = sample_rate
 
     def generate(self):
+        """
+        Generates the sinusoidal AM signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         A_t = np.sin(2 * np.pi * self.fs * t + self.phi_s)
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
-# Linear Frequency Modulation
+
 class LinearFMSignal:
+    """
+    Generates a linear frequency-modulated (FM) signal.
+
+    Args:
+        f0 (float): Initial frequency of the signal (Hz).
+        B (float): Bandwidth of the frequency modulation (Hz).
+        T (float): Time duration over which the frequency modulation occurs (seconds).
+        phi (float): Phase of the signal (radians).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, f0, B, T, phi, duration, sample_rate):
         self.f0 = f0
         self.B = B
@@ -41,12 +105,30 @@ class LinearFMSignal:
         self.sample_rate = sample_rate
 
     def generate(self):
+        """
+        Generates the linear FM signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         alpha = self.B / self.T
         return np.sin(2 * np.pi * (self.f0 + alpha * t) * t + self.phi)
 
-# Sinusoidal Frequency Modulation
+
 class SinusoidalFMSignal:
+    """
+    Generates a sinusoidal frequency-modulated (FM) signal.
+
+    Args:
+        fc (float): Carrier frequency (Hz).
+        fd (float): Frequency deviation (Hz).
+        fm (float): Modulation frequency (Hz).
+        phi (float): Phase of the signal (radians).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, fc, fd, fm, phi, duration, sample_rate):
         self.fc = fc
         self.fd = fd
@@ -56,22 +138,53 @@ class SinusoidalFMSignal:
         self.sample_rate = sample_rate
 
     def generate(self):
+        """
+        Generates the sinusoidal FM signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         return np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
 
-# AM-FM Combination
+
 class AMFMSignal:
+    """
+    Combines an amplitude-modulated (AM) signal and a frequency-modulated (FM) signal.
+
+    Args:
+        am_signal (LinearAMSignal or SinusoidalAMSignal): The AM signal object.
+        fm_signal (LinearFMSignal or SinusoidalFMSignal): The FM signal object.
+    """
+
     def __init__(self, am_signal, fm_signal):
         self.am_signal = am_signal
         self.fm_signal = fm_signal
 
     def generate(self):
+        """
+        Generates the combined AM-FM signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         A_t = self.am_signal.generate()
         S_fm = self.fm_signal.generate()
         return A_t * S_fm
 
-# Intermittent Signal
+
 class IntermittentSignal:
+    """
+    Generates an intermittent signal based on a base signal.
+
+    Args:
+        base_signal (object): The base signal object with a `generate` method.
+        t0 (float): Start time of the intermittent signal (seconds).
+        tmax (float): End time of the intermittent signal (seconds).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, base_signal, t0, tmax, duration, sample_rate):
         self.base_signal = base_signal
         self.t0 = t0
@@ -80,14 +193,40 @@ class IntermittentSignal:
         self.sample_rate = sample_rate
 
     def rect(self, t):
+        """
+        Generates a rectangular window function.
+
+        Args:
+            t (np.ndarray): Time array.
+
+        Returns:
+            np.ndarray: Rectangular window values.
+        """
         return np.where((t >= self.t0) & (t <= self.tmax), 1, 0)
 
     def generate(self):
+        """
+        Generates the intermittent signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         return self.rect(t) * self.base_signal.generate()
 
-# Stationary Sine Wave
+
 class SineSignal:
+    """
+    Generates a stationary sine wave signal.
+
+    Args:
+        frequency (float): Frequency of the sine wave (Hz).
+        amplitude (float): Amplitude of the sine wave.
+        phase (float): Phase of the sine wave (radians).
+        duration (float): Duration of the signal (seconds).
+        sample_rate (float): Sampling rate (samples per second).
+    """
+
     def __init__(self, frequency, amplitude, phase, duration, sample_rate):
         self.frequency = frequency
         self.amplitude = amplitude
@@ -96,5 +235,11 @@ class SineSignal:
         self.sample_rate = sample_rate
 
     def generate(self):
+        """
+        Generates the sine wave signal.
+
+        Returns:
+            np.ndarray: The generated signal.
+        """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
         return self.amplitude * np.sin(2 * np.pi * self.frequency * t + self.phase)
