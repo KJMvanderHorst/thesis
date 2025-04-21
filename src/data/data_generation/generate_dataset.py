@@ -57,8 +57,7 @@ class SyntheticSignalGenerator:
 if __name__ == "__main__":
     print('starting test')
     # Example usage
-    generator = SyntheticSignalGenerator(k=5, fmin=1, fmax=10, duration=1, sample_rate=100)
+    generator = SyntheticSignalGenerator(k=5, fmin=1, fmax=10, duration=1, sample_rate=10)
     composite_signal, components = generator.generate()
     print("Composite Signal:", composite_signal)
     print("Components:", components)
-    print("Generated {} components.".format(len(components)))
