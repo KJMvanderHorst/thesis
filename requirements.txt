@@ -1,4 +1,4 @@
-# local package
+# local packages
 -e .
 
 # external requirements
