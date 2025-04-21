@@ -1,0 +1,64 @@
+"""
+generate_dataset.py
+
+This module provides a function to generate a synthetic dataset of signals
+with various modulation types. The signals are generated based on specified
+parameters such as frequency range, duration, and sample rate. The generated
+signals can be used for testing and training machine learning models in
+signal processing applications.
+
+Classes:
+
+"""
+
+import numpy as np
+from signals import *
+
+class SyntheticSignalGenerator:
+    def __init__(self, k, fmin, fmax, duration, sample_rate):
+        self.k = k
+        self.fmin = fmin
+        self.fmax = fmax
+        self.duration = duration
+        self.sample_rate = sample_rate
+
+    def generate(self):
+        B_segments = np.linspace(self.fmin, self.fmax, self.k + 1)
+        components = []
+
+        for i in range(self.k):
+            f0 = (B_segments[i] + B_segments[i + 1]) / 2
+            signal_type = np.random.choice(['linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm', 'amfm', 'intermittent', 'sine'])
+
+            if signal_type == 'linear_am':
+                signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+            elif signal_type == 'sinusoidal_am':
+                signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+            elif signal_type == 'linear_fm':
+                signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=self.duration, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+            elif signal_type == 'sinusoidal_fm':
+                signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+            elif signal_type == 'amfm':
+                am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = AMFMSignal(am_signal=am, fm_signal=fm)
+            elif signal_type == 'intermittent':
+                base = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = IntermittentSignal(base_signal=base, t0=self.duration/4, tmax=3*self.duration/4, duration=self.duration, sample_rate=self.sample_rate)
+            else:
+                signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration, sample_rate=self.sample_rate)
+
+            components.append(signal.generate())
+
+        composite_signal = np.sum(components, axis=0)
+        return composite_signal, components
+    
+#quick test if this works
+if __name__ == "__main__":
+    print('starting test')
+    # Example usage
+    generator = SyntheticSignalGenerator(k=5, fmin=1, fmax=10, duration=1, sample_rate=100)
+    composite_signal, components = generator.generate()
+    print("Composite Signal:", composite_signal)
+    print("Components:", components)
+    print("Generated {} components.".format(len(components)))
