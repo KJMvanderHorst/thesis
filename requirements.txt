@@ -95,6 +95,7 @@ python-dateutil==2.9.0.post0
 python-dotenv==1.1.0
 python-json-logger==3.3.0
 pytz==2025.2
+PyWavelets==1.8.0
 PyYAML==6.0.2
 pyzmq==26.4.0
 referencing==0.36.2
@@ -116,11 +117,13 @@ soupsieve==2.7
 stack-data==0.6.3
 statsmodels==0.14.4
 sympy==1.13.1
+tdqm==0.0.1
 terminado==0.18.1
 threadpoolctl==3.6.0
 tinycss2==1.4.0
 torch==2.6.0
 tornado==6.4.2
+tqdm==4.67.1
 traitlets==5.14.3
 types-python-dateutil==2.9.0.20241206
 typing-inspection==0.4.0
