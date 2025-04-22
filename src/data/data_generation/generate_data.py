@@ -29,4 +29,4 @@ if __name__ == "__main__":
     )
 
     # Generate and store the dataset
-    generate_and_store_dataset(generator, num_signals=1000, num_components=3)
+    generate_and_store_dataset(generator, num_signals=10000, num_components=2)
