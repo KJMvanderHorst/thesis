@@ -13,8 +13,8 @@ BATCH_SIZE = 32
 EPOCHS = 50
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
-DATA_PATH = ""  # Update with your dataset path
-MODEL_SAVE_PATH = "/path/to/save/model.pth"  # Update with your desired save path
+DATA_PATH = "src/data/data_storage/composite_signals_20250422T181928.npz"  # Update with your dataset path
+MODEL_SAVE_PATH = "models"  # Update with your desired save path
 
 def train():
     # Load dataset
