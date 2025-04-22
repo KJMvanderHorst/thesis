@@ -6,11 +6,11 @@ LOSS_FUNCTIONS = {
     'wavelet_coherence': compute_wavelet_coherence
 }
 
-def compute_combined_loss(output, target, loss_list):
+def compute_combined_loss(components, input_signal, loss_list):
     total_loss = 0.0
     for name in loss_list:
         loss_fn = LOSS_FUNCTIONS.get(name)
         if loss_fn is None:
             raise ValueError(f"Loss '{name}' is not defined.")
-        total_loss += loss_fn(output, target)
+        total_loss += loss_fn(components, input_signal)
     return total_loss
