@@ -39,7 +39,7 @@ class SyntheticSignalGenerator:
         Args:
             signal_types (list): List of signal types to generate. Options include:
                 'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
-                'amfm', 'intermittent', and 'sine'.
+                'amfm' and 'sine'.
         Returns:
             composite_signal (numpy.ndarray): The generated composite signal.
             components (list): A list of individual signal components.
@@ -65,9 +65,6 @@ class SyntheticSignalGenerator:
                 am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
                 fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=self.duration, sample_rate=self.sample_rate)
                 signal = AMFMSignal(am_signal=am, fm_signal=fm)
-            elif signal_type == 'intermittent':
-                base = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration, sample_rate=self.sample_rate)
-                signal = IntermittentSignal(base_signal=base, t0=self.duration/4, tmax=3*self.duration/4, duration=self.duration, sample_rate=self.sample_rate)
             else:
                 signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration, sample_rate=self.sample_rate)
 

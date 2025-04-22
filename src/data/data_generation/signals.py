@@ -22,8 +22,8 @@ class LinearAMSignal:
     Generates a linear amplitude-modulated (AM) signal.
 
     Args:
-        b (float): Slope of the amplitude modulation.
-        a (float): Intercept of the amplitude modulation.
+        b (float): Maximum amplitude.
+        a (float): Minimum amplitude.
         fam (float): Frequency of the carrier signal (Hz).
         phi (float): Phase of the carrier signal (radians).
         duration (float): Duration of the signal (seconds).
@@ -46,7 +46,7 @@ class LinearAMSignal:
             np.ndarray: The generated signal.
         """
         t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
-        A_t = self.b * t + self.a
+        A_t = self.a / self.b * t + self.a
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
 
@@ -171,48 +171,6 @@ class AMFMSignal:
         A_t = self.am_signal.generate()
         S_fm = self.fm_signal.generate()
         return A_t * S_fm
-
-
-class IntermittentSignal:
-    """
-    Generates an intermittent signal based on a base signal.
-
-    Args:
-        base_signal (object): The base signal object with a `generate` method.
-        t0 (float): Start time of the intermittent signal (seconds).
-        tmax (float): End time of the intermittent signal (seconds).
-        duration (float): Duration of the signal (seconds).
-        sample_rate (float): Sampling rate (samples per second).
-    """
-
-    def __init__(self, base_signal, t0, tmax, duration, sample_rate):
-        self.base_signal = base_signal
-        self.t0 = t0
-        self.tmax = tmax
-        self.duration = duration
-        self.sample_rate = sample_rate
-
-    def rect(self, t):
-        """
-        Generates a rectangular window function.
-
-        Args:
-            t (np.ndarray): Time array.
-
-        Returns:
-            np.ndarray: Rectangular window values.
-        """
-        return np.where((t >= self.t0) & (t <= self.tmax), 1, 0)
-
-    def generate(self):
-        """
-        Generates the intermittent signal.
-
-        Returns:
-            np.ndarray: The generated signal.
-        """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
-        return self.rect(t) * self.base_signal.generate()
 
 
 class SineSignal:
