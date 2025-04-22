@@ -11,7 +11,7 @@ from ..losses.combined_loss import compute_combined_loss
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BATCH_SIZE = 50
-EPOCHS = 1
+EPOCHS = 20
 loss_list = ['mse', 'wavelet_coherence']  # List of loss functions to use
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
