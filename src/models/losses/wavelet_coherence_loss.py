@@ -4,13 +4,13 @@ import pywt
 from scipy.signal import coherence
 from ...data.data_generation.data_config import SAMPLING_RATE
 
-def compute_wavelet_coherence(components):
+def compute_wavelet_coherence(components, input_signal):
     """
     Computes the average pairwise wavelet coherence between decomposed components.
 
     Args:
         components: Tensor of shape (batch_size, n_components, signal_length)
-        sample_rate: Sampling rate of the signals.
+            representing the decomposed components.
 
     Returns:
         Scalar Tensor: average wavelet coherence penalty.
