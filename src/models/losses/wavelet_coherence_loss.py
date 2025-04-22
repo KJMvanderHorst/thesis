@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import pywt
 from scipy.signal import coherence
-from ...data.data_generation.data_config import SAMPLE_RATE
+from ...data.data_generation.data_config import SAMPLING_RATE
 
 def compute_wavelet_coherence(components):
     """
@@ -27,7 +27,7 @@ def compute_wavelet_coherence(components):
                 sig2 = components_np[b, j]
 
                 # Use scipy's coherence as a proxy
-                f, Cxy = coherence(sig1, sig2, fs= SAMPLE_RATE, nperseg=256)
+                f, Cxy = coherence(sig1, sig2, fs= SAMPLING_RATE, nperseg=256)
                 total_coherence += np.mean(Cxy)
                 pair_count += 1
 
