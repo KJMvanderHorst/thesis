@@ -1,11 +1,11 @@
 import torch
 from torch.utils.data import DataLoader
 from torch.optim import Adam
-from tqdm import tqdm  # For progress bars
+from tqdm import tqdm
 
-from ..base_model import RRCNNDecomposer
-from ...data.dataset import SignalDataset  # Adjust import based on your dataset location
-from ..losses.combined_loss import compute_combined_loss  # Custom loss function
+from src.models.base_model import RRCNNDecomposer
+from src.data.dataset import SignalDataset
+from src.models.losses.combined_loss import compute_combined_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -13,7 +13,7 @@ BATCH_SIZE = 32
 EPOCHS = 50
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
-DATA_PATH = "/path/to/your/dataset"  # Update with your dataset path
+DATA_PATH = ""  # Update with your dataset path
 MODEL_SAVE_PATH = "/path/to/save/model.pth"  # Update with your desired save path
 
 def train():

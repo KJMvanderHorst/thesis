@@ -78,7 +78,7 @@ def generate_and_store_dataset(generator, num_signals, num_components):
         "dataset_file": dataset_filename  # Link the dataset file in the JSON
     }
     params_filename = f"parameters_{unique_id}.json"
-    params_path = os.path.join(output_folder, params_filename)
+    params_path = os.path.join(output_folder, "data_storage",params_filename)
     with open(params_path, "w") as params_file:
         json.dump(params, params_file, indent=4)
 
