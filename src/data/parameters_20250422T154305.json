@@ -1,0 +1,14 @@
+{
+    "num_signals": 1000,
+    "fmin": 1,
+    "fmax": 100,
+    "duration": 1.0,
+    "signal_types": [
+        "sine"
+    ],
+    "intermittence": 0.1,
+    "overlap_factor": 0.2,
+    "overlap_std": 0.1,
+    "num_segments": 3,
+    "dataset_file": "composite_signals_20250422T154305.npz"
+}

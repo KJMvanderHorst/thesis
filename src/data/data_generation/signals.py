@@ -186,9 +186,8 @@ class SineSignal:
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, frequency, amplitude, phase, duration):
+    def __init__(self, frequency, phase, duration):
         self.frequency = frequency
-        self.amplitude = amplitude
         self.phase = phase
         self.duration = duration
 

@@ -24,7 +24,7 @@ Usage:
     of frequency segments per signal.
 """
 
-def generate_and_store_dataset(generator, num_signals, k):
+def generate_and_store_dataset(generator, num_signals, num_components):
     """
     Generate a dataset of composite signals and store it as an NPZ file along with the parameters used.
 
@@ -50,13 +50,13 @@ def generate_and_store_dataset(generator, num_signals, k):
 
     for _ in range(num_signals):
         # Generate a composite signal and its components
-        composite_signal, components = generator.generate_signal(k)
+        composite_signal, components = generator.generate_signal(f0=generator.fmin, bandwidth= generator.fmax - generator.fmin , k=num_components)
         composite_signals.append(composite_signal)
         all_components.append(components)
 
     # Convert the dataset to NumPy arrays
     composite_signals = np.array(composite_signals)
-    all_components = np.array(all_components, dtype=object)  # Use dtype=object for variable-length components
+    all_components = np.array(all_components)
 
     # Save the dataset as an NPZ file with the unique identifier
     dataset_filename = f"composite_signals_{unique_id}.npz"
@@ -65,13 +65,15 @@ def generate_and_store_dataset(generator, num_signals, k):
 
     # Save the parameters used for the entire dataset as a JSON file with the same unique identifier
     params = {
+        "num_signals": num_signals,
         "fmin": generator.fmin,
         "fmax": generator.fmax,
         "duration": generator.duration,
         "signal_types": generator.signal_types,
         "intermittence": generator.intermittence,
-        "num_signals": num_signals,
-        "num_segments": k,
+        "overlap_factor": generator.overlap_factor,
+        "overlap_std": generator.overlap_std,
+        "num_segments": num_components,
         "dataset_file": dataset_filename  # Link the dataset file in the JSON
     }
     params_filename = f"parameters_{unique_id}.json"

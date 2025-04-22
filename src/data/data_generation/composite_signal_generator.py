@@ -1,14 +1,6 @@
 import numpy as np
 from signals import *
-import os
-import json
-from data_config import INTERMITTENCE_LOWER_BOUND
-from data_config import INTERMITTENCE_UPPER_BOUND
-from data_config import MIN_AMPLITUDE
-from data_config import MAX_AMPLITUDE
-from data_config import MIN_MODULATION_FREQUENCY
-from data_config import MAX_MODULATION_FREQUENCY
-from data_config import MAX_FFREQUENCY_DEVATION
+from data_config import INTERMITTENCE_LOWER_BOUND, INTERMITTENCE_UPPER_BOUND, MIN_AMPLITUDE, MAX_AMPLITUDE, MIN_MODULATION_FREQUENCY,MAX_MODULATION_FREQUENCY, MAX_FFREQUENCY_DEVATION
 
 
 
@@ -164,13 +156,11 @@ class SyntheticSignalGenerator:
 
         # Convert to a 2D array of [start, end] for each segment
         segments = np.array([[segment_frequencies[i], segment_frequencies[i + 1]] for i in range(k)])
-        print("Segments before adjustment:", segments)
 
         # Step 3: Adjust each segment to introduce overlaps
         for i in range(k - 1):  # No need to adjust the last segment
             # Stretch the segment by a random amount
             adjustment = np.random.normal(self.overlap_factor, self.overlap_std) * (segments[i+1, 1] - segments[i+1, 0])
-            print("Adjustment:", adjustment)
             segments[i + 1, 0] = segments[i, 1]  # Ensure the next segment starts where the current one ends before stretching
             segments[i, 1] += adjustment  # Adjust the end of the current segment
 
