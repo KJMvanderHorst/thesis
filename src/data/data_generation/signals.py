@@ -16,7 +16,8 @@ Classes:
 """
 
 import numpy as np
-from data_generation.data_config import SAMPLING_RATE
+from data_config import SAMPLING_RATE
+
 
 class LinearAMSignal:
     """
