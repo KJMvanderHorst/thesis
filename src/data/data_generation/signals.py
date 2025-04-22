@@ -2,7 +2,6 @@ import numpy as np
 from data_config import SAMPLING_RATE
 from data_config import MAX_AMPLITUDE
 from data_config import MIN_AMPLITUDE
-
 """
 signals.py
 
@@ -200,5 +199,6 @@ class SineSignal:
         Returns:
             np.ndarray: The generated signal.
         """
+        self.amplitude = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
         t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
         return self.amplitude * np.sin(2 * np.pi * self.frequency * t + self.phase)
