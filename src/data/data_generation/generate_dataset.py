@@ -4,6 +4,12 @@ import os
 import json
 from data_config import INTERMITTENCE_LOWER_BOUND
 from data_config import INTERMITTENCE_UPPER_BOUND
+from data_config import MIN_AMPLITUDE
+from data_config import MAX_AMPLITUDE
+from data_config import MIN_MODULATION_FREQUENCY
+from data_config import MAX_MODULATION_FREQUENCY
+from data_config import MAX_FFREQUENCY_DEVATION
+
 
 
 """
@@ -70,23 +76,47 @@ class SyntheticSignalGenerator:
         components = []
 
         for i in range(k):
+            # Generate the duration of the signal based on some probability of intermittence
+            # If intermittence is enabled, randomly adjust the duration
+            # based on the specified bounds
             duration = np.random.uniform(INTERMITTENCE_LOWER_BOUND, INTERMITTENCE_UPPER_BOUND) * self.duration if np.random.uniform(0, 1) > self.intermittence else self.duration
 
             # Randomly select a signal type from the provided list
             signal_type = np.random.choice(self.signal_types)
 
+            starting_freq = np.random.uniform(0,2*np.pi)
             match signal_type:
+                #TODO : make this code cleaner and more readable
                 case 'linear_am':
-                    signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration = duration)
+                    freq = np.random.uniform(B_segments[i, 0], B_segments[i, 1]) #pick a random frequency within the segment
+                    #randomly select the min and max amplitude based on the bounds
+                    am1 = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+                    am2 = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+                    am_max = np.max([am1, am2])
+                    am_min = np.min([am1, am2])
+                    signal = LinearAMSignal(b=am_max, a=am_min, fam=freq, phi=starting_freq, duration = duration)
+
                 case 'sinusoidal_am':
-                    signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=duration)
+                    freq = np.random.uniform(B_segments[i, 0], B_segments[i, 1]) #pick a random frequency within the segment
+                    modulating_freq_start = np.random.uniform(0, 2 * np.pi)
+                    modulating_frequency = np.random.uniform(MIN_MODULATION_FREQUENCY, MAX_MODULATION_FREQUENCY)
+                    signal = SinusoidalAMSignal(fs=modulating_frequency, phi_s= modulating_freq_start , fam= freq, phi= starting_freq, duration=duration)
                 case 'linear_fm':
-                    signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=duration, phi=0)
+                    signal = LinearFMSignal(f0=B_segments[i][0], B=B_segments[i + 1] - B_segments[i], T=duration, phi=0)
                 case 'sinusoidal_fm':
-                    signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=duration)
+                    freq = np.random.uniform(B_segments[i, 0], B_segments[i, 1]) #pick a random frequency within the segment
+                    frequency_deviation = np.random.uniform(0, MAX_FFREQUENCY_DEVATION*freq)
+                    modulating_frequency = np.random.uniform(MIN_MODULATION_FREQUENCY, MAX_MODULATION_FREQUENCY)
+                    signal = SinusoidalFMSignal(fc= freq, fd= frequency_deviation, fm= modulating_frequency, phi= starting_freq, duration=duration)
                 case 'amfm':
-                    am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
-                    fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=duration)
+                    freq = np.random.uniform(B_segments[i, 0], B_segments[i, 1]) #pick a random frequency within the segment
+                    #randomly select the min and max amplitude based on the bounds
+                    am1 = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+                    am2 = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+                    am_max = np.max([am1, am2])
+                    am_min = np.min([am1, am2])
+                    am = LinearAMSignal(b=am_max, a=am_min, fam=freq, phi=starting_freq, duration = duration)
+                    fm = LinearFMSignal(f0=B_segments[i][0], B=B_segments[i + 1] - B_segments[i], T=duration, phi=0)
                     signal = AMFMSignal(am_signal=am, fm_signal=fm)
                 case _:
                     signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=duration)

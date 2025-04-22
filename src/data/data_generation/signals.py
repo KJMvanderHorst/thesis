@@ -1,3 +1,8 @@
+import numpy as np
+from data_config import SAMPLING_RATE
+from data_config import MAX_AMPLITUDE
+from data_config import MIN_AMPLITUDE
+
 """
 signals.py
 
@@ -14,9 +19,6 @@ Classes:
     IntermittentSignal: Generates an intermittent signal based on a base signal.
     SineSignal: Generates a stationary sine wave signal.
 """
-
-import numpy as np
-from data_config import SAMPLING_RATE
 
 
 class LinearAMSignal:
@@ -112,7 +114,8 @@ class LinearFMSignal:
         """
         t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
         alpha = self.B / self.T
-        return np.sin(2 * np.pi * (self.f0 + alpha * t) * t + self.phi)
+        A = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+        return A * np.sin(2 * np.pi * (self.f0 + alpha * t) * t + self.phi)
 
 
 class SinusoidalFMSignal:
@@ -143,7 +146,8 @@ class SinusoidalFMSignal:
             np.ndarray: The generated signal.
         """
         t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
-        return np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
+        A = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+        return A * np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
 
 
 class AMFMSignal:
