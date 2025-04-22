@@ -92,3 +92,12 @@ target/
 *.csv
 *.json
 *.npz
+
+# Ignore trained model files
+*.h5
+*.pt
+*.pth
+*.ckpt
+*.joblib
+*.sav
+*.pkl
