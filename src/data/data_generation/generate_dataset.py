@@ -18,25 +18,24 @@ class SyntheticSignalGenerator:
     """
     A class to generate synthetic signals with various modulation types.
     Attributes:
-        k (int): Number of frequency segments.
         fmin (float): Minimum frequency.
         fmax (float): Maximum frequency.
         duration (float): Duration of the signal in seconds.
         sample_rate (int): Sample rate for the signal generation.
     """
-    def __init__(self, k, fmin, fmax, duration, sample_rate):
-        self.k = k
+    def __init__(self, fmin, fmax, duration, sample_rate):
         self.fmin = fmin
         self.fmax = fmax
         self.duration = duration
         self.sample_rate = sample_rate
 
-    def generate(self, signal_types):
+    def generate(self, k ,signal_types):
         """
-        Generate a synthetic dataset of signals with various modulation types.
+        Generate a synthetic signal of signals with various modulation types.
         The signals are generated based on the specified parameters such as
         frequency range, duration, and sample rate.
         Args:
+            k (int): Number of frequency segments.
             signal_types (list): List of signal types to generate. Options include:
                 'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
                 'amfm' and 'sine'.
@@ -48,7 +47,7 @@ class SyntheticSignalGenerator:
         B_segments = np.linspace(self.fmin, self.fmax, self.k + 1)
         components = []
 
-        for i in range(self.k):
+        for i in range(k):
             f0 = (B_segments[i] + B_segments[i + 1]) / 2
             signal_type = np.random.choice(signal_types)
             # Randomly select a signal type from the provided list
