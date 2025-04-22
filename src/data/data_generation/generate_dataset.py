@@ -36,18 +36,20 @@ class SyntheticSignalGenerator:
         fmax (float): Maximum frequency.
         intermittence (float): Probability of generating an intermittent signal.
         overlap_factor (float): Factor to determine the overlap between segments.
+        overlap_std (float): Standard deviation for the overlap adjustment.
         duration (float): Duration of the signal in seconds.
         signal_types (list): List of signal types to generate. Options include:
             'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
             'amfm' and 'sine'.
     """
-    def __init__(self, fmin, fmax, duration, signal_types, intermittence, overlap_factor):
+    def __init__(self, fmin, fmax, duration, signal_types, intermittence, overlap_factor, overlap_std):
         self.fmin = fmin
         self.fmax = fmax
         self.duration = duration
         self.signal_types = signal_types
         self.intermittence = intermittence
         self.overlap_factor = overlap_factor
+        self.overlap_std = overlap_std
 
     def generate_signal(self, f0, bandwidth, k):
         """
@@ -64,7 +66,7 @@ class SyntheticSignalGenerator:
             components (list): A list of individual signal components.
         """
         # Generate frequency segments
-        B_segments = self.generate_bandwidth(k, f0, bandwidth, self.overlap_factor)
+        B_segments = self.generate_bandwidth(k, f0, bandwidth)
         components = []
 
         for i in range(k):
@@ -94,7 +96,7 @@ class SyntheticSignalGenerator:
         composite_signal = np.sum(components, axis=0)
         return composite_signal, components
     
-    def generate_bandwidth(self, k, f0, bandwidth, overlap_factor = 0.2):
+    def generate_bandwidth(self, k, f0, bandwidth):
         """
         Generate random bandwidths for k segments with overlaps.
 
@@ -102,8 +104,6 @@ class SyntheticSignalGenerator:
             k (int): Number of segments.
             f0 (float): Starting frequency of the signal (Hz).
             bandwidth (float): Total bandwidth of the signal (Hz).
-            stretch_mean (float): Mean factor for stretching/shrinking bandwidths.
-            stretch_std (float): Standard deviation for stretching/shrinking bandwidths.
 
         Returns:
             np.ndarray: A 2D array of shape (k, 2) where each row represents [start, end] frequencies of a segment.
@@ -125,30 +125,13 @@ class SyntheticSignalGenerator:
 
         # Step 3: Adjust each segment to introduce overlaps
         for i in range(k - 1):  # No need to adjust the last segment
-            # Stretch or shrink the current segment's end frequency
-            adjustment = np.random.normal(stretch_mean, stretch_std) * (segments[i, 1] - segments[i, 0])
+            # Stretch the segment by a random amount
+            adjustment = np.random.normal(self.overlap_factor, self.overlap_std) * (segments[i+1, 1] - segments[i+1, 0])
             print("Adjustment:", adjustment)
             segments[i + 1, 0] = segments[i, 1]  # Ensure the next segment starts where the current one ends before stretching
             segments[i, 1] += adjustment  # Adjust the end of the current segment
 
-
         return segments
-
-if __name__ == "__main__":
-    # Example usage
-    generator = SyntheticSignalGenerator(
-            fmin=100,
-            fmax=500,
-            duration=1.0,
-            signal_types=['sine'],
-            intermittence=0.1
-    )
-    # Generate a signal with k segments and total bandwidth
-    k = 3
-    total_bandwidth = 200
-    f0 = 100
-    segment_frequencies = generator.generate_bandwidth(k, f0,total_bandwidth)
-    print("Segment Frequencies:", segment_frequencies)
 
 def generate_and_store_dataset(generator, num_signals, k):
     """
