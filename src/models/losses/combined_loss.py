@@ -1,9 +1,9 @@
-from losses.reconstruction_loss import mse_loss
-from losses.wavelet_coherence_loss import wavelet_coherence_loss
+from .mse_loss import mse_loss
+from .wavelet_coherence_loss import compute_wavelet_coherence
 
 LOSS_FUNCTIONS = {
     'mse': mse_loss,
-    'wavelet_coherence': wavelet_coherence_loss,
+    'wavelet_coherence': compute_wavelet_coherence
 }
 
 def compute_combined_loss(output, target, loss_list):
