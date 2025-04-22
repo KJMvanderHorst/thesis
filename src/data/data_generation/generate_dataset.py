@@ -34,17 +34,20 @@ class SyntheticSignalGenerator:
     Attributes:
         fmin (float): Minimum frequency.
         fmax (float): Maximum frequency.
+        intermittence (float): Probability of generating an intermittent signal.
+        overlap_factor (float): Factor to determine the overlap between segments.
         duration (float): Duration of the signal in seconds.
         signal_types (list): List of signal types to generate. Options include:
             'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
             'amfm' and 'sine'.
     """
-    def __init__(self, fmin, fmax, duration, signal_types, intermittence):
+    def __init__(self, fmin, fmax, duration, signal_types, intermittence, overlap_factor):
         self.fmin = fmin
         self.fmax = fmax
         self.duration = duration
         self.signal_types = signal_types
         self.intermittence = intermittence
+        self.overlap_factor = overlap_factor
 
     def generate_signal(self, f0, bandwidth, k):
         """
@@ -55,17 +58,16 @@ class SyntheticSignalGenerator:
             k (int): Number of frequency segments.
             f0 (float): Starting frequency of the signal (Hz).
             bandwidth (float): Bandwidth of the signal (Hz).
+
         Returns:
             composite_signal (numpy.ndarray): The generated composite signal.
             components (list): A list of individual signal components.
         """
         # Generate frequency segments
-        B_segments = np.linspace(self.fmin, self.fmax, k + 1)
+        B_segments = self.generate_bandwidth(k, f0, bandwidth, self.overlap_factor)
         components = []
 
         for i in range(k):
-            f0 = (B_segments[i] + B_segments[i + 1]) / 2
-            # Randomly select if a signal has intermittence
             duration = np.random.uniform(INTERMITTENCE_LOWER_BOUND, INTERMITTENCE_UPPER_BOUND) * self.duration if np.random.uniform(0, 1) > self.intermittence else self.duration
 
             # Randomly select a signal type from the provided list
@@ -91,6 +93,62 @@ class SyntheticSignalGenerator:
 
         composite_signal = np.sum(components, axis=0)
         return composite_signal, components
+    
+    def generate_bandwidth(self, k, f0, bandwidth, overlap_factor = 0.2):
+        """
+        Generate random bandwidths for k segments with overlaps.
+
+        Args:
+            k (int): Number of segments.
+            f0 (float): Starting frequency of the signal (Hz).
+            bandwidth (float): Total bandwidth of the signal (Hz).
+            stretch_mean (float): Mean factor for stretching/shrinking bandwidths.
+            stretch_std (float): Standard deviation for stretching/shrinking bandwidths.
+
+        Returns:
+            np.ndarray: A 2D array of shape (k, 2) where each row represents [start, end] frequencies of a segment.
+        """
+
+        # Step 1: Split the total bandwidth into k non-overlapping segments using Dirichlet
+        alpha = np.ones(k)  # Adjust the concentration parameter for bias
+        segment_bandwidths = np.random.dirichlet(alpha) * bandwidth
+
+
+        # Step 2: Generate non-overlapping segment boundaries
+        segment_frequencies = [f0]
+        for bw in segment_bandwidths:
+            segment_frequencies.append(segment_frequencies[-1] + bw)
+
+        # Convert to a 2D array of [start, end] for each segment
+        segments = np.array([[segment_frequencies[i], segment_frequencies[i + 1]] for i in range(k)])
+        print("Segments before adjustment:", segments)
+
+        # Step 3: Adjust each segment to introduce overlaps
+        for i in range(k - 1):  # No need to adjust the last segment
+            # Stretch or shrink the current segment's end frequency
+            adjustment = np.random.normal(stretch_mean, stretch_std) * (segments[i, 1] - segments[i, 0])
+            print("Adjustment:", adjustment)
+            segments[i + 1, 0] = segments[i, 1]  # Ensure the next segment starts where the current one ends before stretching
+            segments[i, 1] += adjustment  # Adjust the end of the current segment
+
+
+        return segments
+
+if __name__ == "__main__":
+    # Example usage
+    generator = SyntheticSignalGenerator(
+            fmin=100,
+            fmax=500,
+            duration=1.0,
+            signal_types=['sine'],
+            intermittence=0.1
+    )
+    # Generate a signal with k segments and total bandwidth
+    k = 3
+    total_bandwidth = 200
+    f0 = 100
+    segment_frequencies = generator.generate_bandwidth(k, f0,total_bandwidth)
+    print("Segment Frequencies:", segment_frequencies)
 
 def generate_and_store_dataset(generator, num_signals, k):
     """
@@ -139,5 +197,3 @@ def generate_and_store_dataset(generator, num_signals, k):
 
     print(f"Dataset saved to {dataset_path}")
     print(f"Parameters saved to {params_path}")
-
-
