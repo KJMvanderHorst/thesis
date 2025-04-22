@@ -1,3 +1,7 @@
+import numpy as np
+from data_config import SAMPLING_RATE
+from data_config import MAX_AMPLITUDE
+from data_config import MIN_AMPLITUDE
 """
 signals.py
 
@@ -15,28 +19,26 @@ Classes:
     SineSignal: Generates a stationary sine wave signal.
 """
 
-import numpy as np
 
 class LinearAMSignal:
     """
     Generates a linear amplitude-modulated (AM) signal.
 
     Args:
-        b (float): Slope of the amplitude modulation.
-        a (float): Intercept of the amplitude modulation.
+        b (float): Maximum amplitude.
+        a (float): Minimum amplitude.
         fam (float): Frequency of the carrier signal (Hz).
         phi (float): Phase of the carrier signal (radians).
         duration (float): Duration of the signal (seconds).
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, b, a, fam, phi, duration, sample_rate):
+    def __init__(self, b, a, fam, phi, duration):
         self.b = b
         self.a = a
         self.fam = fam
         self.phi = phi
         self.duration = duration
-        self.sample_rate = sample_rate
 
     def generate(self):
         """
@@ -45,8 +47,8 @@ class LinearAMSignal:
         Returns:
             np.ndarray: The generated signal.
         """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
-        A_t = self.b * t + self.a
+        t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
+        A_t = self.a / self.b * t + self.a
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
 
@@ -63,13 +65,12 @@ class SinusoidalAMSignal:
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, fs, phi_s, fam, phi, duration, sample_rate):
+    def __init__(self, fs, phi_s, fam, phi, duration):
         self.fs = fs
         self.phi_s = phi_s
         self.fam = fam
         self.phi = phi
         self.duration = duration
-        self.sample_rate = sample_rate
 
     def generate(self):
         """
@@ -78,7 +79,7 @@ class SinusoidalAMSignal:
         Returns:
             np.ndarray: The generated signal.
         """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
+        t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
         A_t = np.sin(2 * np.pi * self.fs * t + self.phi_s)
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
@@ -96,13 +97,12 @@ class LinearFMSignal:
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, f0, B, T, phi, duration, sample_rate):
+    def __init__(self, f0, B, T, phi, duration):
         self.f0 = f0
         self.B = B
         self.T = T
         self.phi = phi
         self.duration = duration
-        self.sample_rate = sample_rate
 
     def generate(self):
         """
@@ -111,9 +111,10 @@ class LinearFMSignal:
         Returns:
             np.ndarray: The generated signal.
         """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
+        t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
         alpha = self.B / self.T
-        return np.sin(2 * np.pi * (self.f0 + alpha * t) * t + self.phi)
+        A = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+        return A * np.sin(2 * np.pi * (self.f0 + alpha * t) * t + self.phi)
 
 
 class SinusoidalFMSignal:
@@ -129,13 +130,12 @@ class SinusoidalFMSignal:
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, fc, fd, fm, phi, duration, sample_rate):
+    def __init__(self, fc, fd, fm, phi, duration):
         self.fc = fc
         self.fd = fd
         self.fm = fm
         self.phi = phi
         self.duration = duration
-        self.sample_rate = sample_rate
 
     def generate(self):
         """
@@ -144,8 +144,9 @@ class SinusoidalFMSignal:
         Returns:
             np.ndarray: The generated signal.
         """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
-        return np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
+        t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
+        A = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+        return A * np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
 
 
 class AMFMSignal:
@@ -173,48 +174,6 @@ class AMFMSignal:
         return A_t * S_fm
 
 
-class IntermittentSignal:
-    """
-    Generates an intermittent signal based on a base signal.
-
-    Args:
-        base_signal (object): The base signal object with a `generate` method.
-        t0 (float): Start time of the intermittent signal (seconds).
-        tmax (float): End time of the intermittent signal (seconds).
-        duration (float): Duration of the signal (seconds).
-        sample_rate (float): Sampling rate (samples per second).
-    """
-
-    def __init__(self, base_signal, t0, tmax, duration, sample_rate):
-        self.base_signal = base_signal
-        self.t0 = t0
-        self.tmax = tmax
-        self.duration = duration
-        self.sample_rate = sample_rate
-
-    def rect(self, t):
-        """
-        Generates a rectangular window function.
-
-        Args:
-            t (np.ndarray): Time array.
-
-        Returns:
-            np.ndarray: Rectangular window values.
-        """
-        return np.where((t >= self.t0) & (t <= self.tmax), 1, 0)
-
-    def generate(self):
-        """
-        Generates the intermittent signal.
-
-        Returns:
-            np.ndarray: The generated signal.
-        """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
-        return self.rect(t) * self.base_signal.generate()
-
-
 class SineSignal:
     """
     Generates a stationary sine wave signal.
@@ -227,12 +186,10 @@ class SineSignal:
         sample_rate (float): Sampling rate (samples per second).
     """
 
-    def __init__(self, frequency, amplitude, phase, duration, sample_rate):
+    def __init__(self, frequency, phase, duration):
         self.frequency = frequency
-        self.amplitude = amplitude
         self.phase = phase
         self.duration = duration
-        self.sample_rate = sample_rate
 
     def generate(self):
         """
@@ -241,5 +198,6 @@ class SineSignal:
         Returns:
             np.ndarray: The generated signal.
         """
-        t = np.linspace(0, self.duration, int(self.duration * self.sample_rate), endpoint=False)
+        self.amplitude = np.random.uniform(MIN_AMPLITUDE, MAX_AMPLITUDE)
+        t = np.linspace(0, self.duration, int(self.duration * SAMPLING_RATE), endpoint=False)
         return self.amplitude * np.sin(2 * np.pi * self.frequency * t + self.phase)
