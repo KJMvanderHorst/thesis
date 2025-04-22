@@ -60,7 +60,8 @@ def generate_and_store_dataset(generator, num_signals, num_components):
 
     # Save the dataset as an NPZ file with the unique identifier
     dataset_filename = f"composite_signals_{unique_id}.npz"
-    dataset_path = os.path.join(output_folder, dataset_filename)
+    dataset_path = os.path.join(output_folder, "data_storage", dataset_filename)
+    os.makedirs(os.path.dirname(dataset_path), exist_ok=True)
     np.savez_compressed(dataset_path, composite_signals=composite_signals, components=all_components)
 
     # Save the parameters used for the entire dataset as a JSON file with the same unique identifier
@@ -77,7 +78,7 @@ def generate_and_store_dataset(generator, num_signals, num_components):
         "dataset_file": dataset_filename  # Link the dataset file in the JSON
     }
     params_filename = f"parameters_{unique_id}.json"
-    params_path = os.path.join(output_folder, params_filename)
+    params_path = os.path.join(output_folder, "data_storage",params_filename)
     with open(params_path, "w") as params_file:
         json.dump(params, params_file, indent=4)
 
