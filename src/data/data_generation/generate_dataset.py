@@ -1,3 +1,8 @@
+import numpy as np
+from signals import *
+import os
+import json
+
 """
 generate_dataset.py
 
@@ -8,67 +13,120 @@ signals can be used for testing and training machine learning models in
 signal processing applications.
 
 Classes:
-
+    SyntheticSignalGenerator: A class to generate synthetic signals with various modulation types.
+        Attributes:
+            fmin (float): Minimum frequency.
+            fmax (float): Maximum frequency.
+            duration (float): Duration of the signal in seconds.
+            signal_types (list): List of signal types to generate. Options include:
+                'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
+                'amfm' and 'sine'.
+    generate_and_store_dataset: A function to generate a dataset of composite signals
+        and store it as a CSV file along with the parameters used.
 """
-
-import numpy as np
-from signals import *
 
 class SyntheticSignalGenerator:
     """
-    A class to generate synthetic signals with various modulation types.
+    A class to generate synthetic a dataset of signals with various modulation types.
     Attributes:
         fmin (float): Minimum frequency.
         fmax (float): Maximum frequency.
         duration (float): Duration of the signal in seconds.
-        sample_rate (int): Sample rate for the signal generation.
+        signal_types (list): List of signal types to generate. Options include:
+            'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
+            'amfm' and 'sine'.
     """
-    def __init__(self, fmin, fmax, duration, sample_rate):
+    def __init__(self, fmin, fmax, duration, signal_types):
         self.fmin = fmin
         self.fmax = fmax
         self.duration = duration
-        self.sample_rate = sample_rate
+        self.signal_types = signal_types
 
-    def generate(self, k ,signal_types):
+    def generate_signal(self, k):
         """
         Generate a synthetic signal of signals with various modulation types.
         The signals are generated based on the specified parameters such as
         frequency range, duration, and sample rate.
         Args:
             k (int): Number of frequency segments.
-            signal_types (list): List of signal types to generate. Options include:
-                'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
-                'amfm' and 'sine'.
         Returns:
             composite_signal (numpy.ndarray): The generated composite signal.
             components (list): A list of individual signal components.
         """
         # Generate frequency segments
-        B_segments = np.linspace(self.fmin, self.fmax, self.k + 1)
+        B_segments = np.linspace(self.fmin, self.fmax, k + 1)
         components = []
 
         for i in range(k):
             f0 = (B_segments[i] + B_segments[i + 1]) / 2
-            signal_type = np.random.choice(signal_types)
+            signal_type = np.random.choice(self.signal_types)
             # Randomly select a signal type from the provided list
 
             if signal_type == 'linear_am':
-                signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
             elif signal_type == 'sinusoidal_am':
-                signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=self.duration)
             elif signal_type == 'linear_fm':
-                signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=self.duration, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=self.duration, phi=0)
             elif signal_type == 'sinusoidal_fm':
-                signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=self.duration)
             elif signal_type == 'amfm':
-                am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration, sample_rate=self.sample_rate)
-                fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=self.duration, sample_rate=self.sample_rate)
+                am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
+                fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=self.duration)
                 signal = AMFMSignal(am_signal=am, fm_signal=fm)
             else:
-                signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration, sample_rate=self.sample_rate)
+                signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration)
 
             components.append(signal.generate())
 
         composite_signal = np.sum(components, axis=0)
         return composite_signal, components
-    
+
+def generate_and_store_dataset(generator, num_signals, k):
+    """
+    Generate a dataset of composite signals and store it as an NPZ file along with the parameters used.
+
+    Args:
+        generator (SyntheticSignalGenerator): An instance of the SyntheticSignalGenerator class.
+        num_signals (int): Number of composite signals to generate.
+        k (int): Number of frequency segments for each signal.
+
+    Returns:
+        None
+    """
+    # Ensure the output folder exists
+    output_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), "../../data"))
+    os.makedirs(output_folder, exist_ok=True)
+
+    # Initialize a list to store the dataset
+    dataset = []
+
+    for _ in range(num_signals):
+        # Generate a composite signal and its components
+        composite_signal, _ = generator.generate_signal(k)
+        dataset.append(composite_signal)
+
+    # Convert the dataset to a NumPy array
+    dataset = np.array(dataset)
+
+    # Save the dataset as an NPZ file
+    dataset_path = os.path.join(output_folder, "composite_signals.npz")
+    np.savez_compressed(dataset_path, dataset=dataset)
+
+    # Save the parameters used for the entire dataset as a JSON file
+    params = {
+        "fmin": generator.fmin,
+        "fmax": generator.fmax,
+        "duration": generator.duration,
+        "signal_types": generator.signal_types,
+        "num_signals": num_signals,
+        "num_segments": k
+    }
+    params_path = os.path.join(output_folder, "parameters.json")
+    with open(params_path, "w") as params_file:
+        json.dump(params, params_file, indent=4)
+
+    print(f"Dataset saved to {dataset_path}")
+    print(f"Parameters saved to {params_path}")
+
+
