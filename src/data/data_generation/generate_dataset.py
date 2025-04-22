@@ -2,6 +2,9 @@ import numpy as np
 from signals import *
 import os
 import json
+from data_config import INTERMITTENCE_LOWER_BOUND
+from data_config import INTERMITTENCE_UPPER_BOUND
+
 
 """
 generate_dataset.py
@@ -36,19 +39,22 @@ class SyntheticSignalGenerator:
             'linear_am', 'sinusoidal_am', 'linear_fm', 'sinusoidal_fm',
             'amfm' and 'sine'.
     """
-    def __init__(self, fmin, fmax, duration, signal_types):
+    def __init__(self, fmin, fmax, duration, signal_types, intermittence):
         self.fmin = fmin
         self.fmax = fmax
         self.duration = duration
         self.signal_types = signal_types
+        self.intermittence = intermittence
 
-    def generate_signal(self, k):
+    def generate_signal(self, f0, bandwidth, k):
         """
         Generate a synthetic signal of signals with various modulation types.
         The signals are generated based on the specified parameters such as
         frequency range, duration, and sample rate.
         Args:
             k (int): Number of frequency segments.
+            f0 (float): Starting frequency of the signal (Hz).
+            bandwidth (float): Bandwidth of the signal (Hz).
         Returns:
             composite_signal (numpy.ndarray): The generated composite signal.
             components (list): A list of individual signal components.
@@ -59,23 +65,27 @@ class SyntheticSignalGenerator:
 
         for i in range(k):
             f0 = (B_segments[i] + B_segments[i + 1]) / 2
-            signal_type = np.random.choice(self.signal_types)
-            # Randomly select a signal type from the provided list
+            # Randomly select if a signal has intermittence
+            duration = np.random.uniform(INTERMITTENCE_LOWER_BOUND, INTERMITTENCE_UPPER_BOUND) * self.duration if np.random.uniform(0, 1) > self.intermittence else self.duration
 
-            if signal_type == 'linear_am':
-                signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
-            elif signal_type == 'sinusoidal_am':
-                signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=self.duration)
-            elif signal_type == 'linear_fm':
-                signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=self.duration, phi=0)
-            elif signal_type == 'sinusoidal_fm':
-                signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=self.duration)
-            elif signal_type == 'amfm':
-                am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
-                fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=self.duration)
-                signal = AMFMSignal(am_signal=am, fm_signal=fm)
-            else:
-                signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=self.duration)
+            # Randomly select a signal type from the provided list
+            signal_type = np.random.choice(self.signal_types)
+
+            match signal_type:
+                case 'linear_am':
+                    signal = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration = duration)
+                case 'sinusoidal_am':
+                    signal = SinusoidalAMSignal(fs=1, phi_s=0, fam=f0, phi=0, duration=duration)
+                case 'linear_fm':
+                    signal = LinearFMSignal(f0=f0, B=B_segments[i + 1] - B_segments[i], T=duration, phi=0)
+                case 'sinusoidal_fm':
+                    signal = SinusoidalFMSignal(fc=f0, fd=5, fm=2, phi=0, duration=duration)
+                case 'amfm':
+                    am = LinearAMSignal(b=0.5, a=1, fam=f0, phi=0, duration=self.duration)
+                    fm = LinearFMSignal(f0=f0, B=5, T=self.duration, phi=0, duration=duration)
+                    signal = AMFMSignal(am_signal=am, fm_signal=fm)
+                case _:
+                    signal = SineSignal(frequency=f0, amplitude=1, phase=0, duration=duration)
 
             components.append(signal.generate())
 
@@ -119,6 +129,7 @@ def generate_and_store_dataset(generator, num_signals, k):
         "fmax": generator.fmax,
         "duration": generator.duration,
         "signal_types": generator.signal_types,
+        "intermittence": generator.intermittence,
         "num_signals": num_signals,
         "num_segments": k
     }

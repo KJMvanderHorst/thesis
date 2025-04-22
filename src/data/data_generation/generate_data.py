@@ -21,7 +21,8 @@ if __name__ == "__main__":
         fmin=100,
         fmax=500,
         duration=1.0,
-        signal_types=['sine']
+        signal_types=['sine'],
+        intermittence= 0.1
     )
 
     # Generate and store the dataset
