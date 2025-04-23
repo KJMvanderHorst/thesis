@@ -92,10 +92,9 @@ pydantic_core==2.33.1
 Pygments==2.19.1
 pyparsing==3.2.3
 python-dateutil==2.9.0.post0
-python-dotenv==1.1.0
 python-json-logger==3.3.0
 pytz==2025.2
-PyWavelets==1.8.0
+PyWavelets @ git+https://github.com/PyWavelets/pywt.git@1f73bcb8a3cb61508cd51478deaf4e2b81b53157
 PyYAML==6.0.2
 pyzmq==26.4.0
 referencing==0.36.2
@@ -117,7 +116,6 @@ soupsieve==2.7
 stack-data==0.6.3
 statsmodels==0.14.4
 sympy==1.13.1
-tdqm==0.0.1
 terminado==0.18.1
 threadpoolctl==3.6.0
 tinycss2==1.4.0

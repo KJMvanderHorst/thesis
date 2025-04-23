@@ -1,13 +1,13 @@
 import numpy as np
 from scipy.signal import find_peaks
+from src.data.data_generation.data_config import SAMPLING_RATE
 
-def compute_frequency_bands(signal, sampling_rate, n_bands=3):
+def compute_frequency_bands(signal, n_bands=2):
     """
     Computes frequency bands by detecting peaks in the Fourier Transform of a signal.
 
     Args:
         signal (np.ndarray): The input signal (1D array).
-        sampling_rate (float): The sampling rate of the signal.
         n_bands (int): The number of frequency bands to compute.
 
     Returns:
@@ -15,7 +15,7 @@ def compute_frequency_bands(signal, sampling_rate, n_bands=3):
     """
     # Compute the Fourier Transform of the signal
     fft = np.fft.fft(signal)
-    freqs = np.fft.fftfreq(len(signal), d=1/sampling_rate)
+    freqs = np.fft.fftfreq(len(signal), d=1/SAMPLING_RATE)
 
     # Use only the positive frequencies
     positive_freqs = freqs[freqs >= 0]
@@ -53,16 +53,15 @@ def compute_frequency_bands(signal, sampling_rate, n_bands=3):
 
     return frequency_bands
 
-def test_compute_frequency_bands_with_generated_signal(sampling_rate=1000, n_bands=3):
+def test_compute_frequency_bands_with_generated_signal(n_bands=3):
     """
     Tests the compute_frequency_bands function using a generated synthetic signal.
 
     Args:
-        sampling_rate (float): Sampling rate of the synthetic signal.
         n_bands (int): Number of frequency bands to compute.
     """
     # Generate a synthetic signal with multiple frequency components
-    t = np.linspace(0, 1, sampling_rate, endpoint=False)  # 1 second of data
+    t = np.linspace(0, 1, endpoint=False)  # 1 second of data
     signal = (
         np.sin(2 * np.pi * 50 * t) +  # 50 Hz component
         np.sin(2 * np.pi * 120 * t) +  # 120 Hz component
@@ -70,11 +69,7 @@ def test_compute_frequency_bands_with_generated_signal(sampling_rate=1000, n_ban
     )
 
     # Compute frequency bands
-    frequency_bands = compute_frequency_bands(signal, sampling_rate, n_bands)
+    frequency_bands = compute_frequency_bands(signal, n_bands)
 
     # Print the results
     print("Computed Frequency Bands:", frequency_bands)
-
-# Example usage
-if __name__ == "__main__":
-    test_compute_frequency_bands_with_generated_signal(sampling_rate=1000, n_bands=3)
