@@ -18,7 +18,7 @@ loss_list = ['mse', 'wavelet_coherence', 'band_leakage']  # List of loss functio
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
 DATA_PATH = "src/data/data_storage/composite_signals_20250422T181928.npz"  # Update with your dataset path
-MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test.pth"  # Specify a file name
+MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test_with_bands.pth"  # Specify a file name
 
 def train():
     # Load the full dataset
