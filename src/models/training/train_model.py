@@ -4,15 +4,16 @@ from torch.optim import Adam
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
-from ..base_model import RRCNNDecomposer
-from ...data.dataset import SignalDataset
-from ..losses.combined_loss import compute_combined_loss
+from losses.bandlimiting.bandwidth_limiting import calculate_frequency_bands
+from src.models.base_model import RRCNNDecomposer
+from src.data.dataset import SignalDataset
+from src.models.losses.combined_loss import compute_combined_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 BATCH_SIZE = 50
-EPOCHS = 20
-loss_list = ['mse', 'wavelet_coherence']  # List of loss functions to use
+EPOCHS = 10
+loss_list = ['mse', 'wavelet_coherence, ']  # List of loss functions to use
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
 DATA_PATH = "src/data/data_storage/composite_signals_20250422T181928.npz"  # Update with your dataset path
@@ -40,6 +41,24 @@ def train():
 
     # Define optimizer
     optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+
+    
+    # Check if 'band_leakage' loss is included
+    if 'band_leakage' in loss_list:
+        # Calculate bandwidths for all signals in the dataset using frequency spikes
+        print("Calculating bandwidths with frequency spikes for all signals...")
+        bandwidths = []
+        for signal in full_dataset:
+            if isinstance(signal, (tuple, list)):
+                signal = signal[0]  # Extract the first element if it's a tuple or list
+            # Use the frequency spikes function to calculate bandwidth
+            bandwidth = calculate_frequency_bands(signal)
+            bandwidths.append(bandwidth)
+        print("Bandwidth calculation with frequency spikes completed.")
+
+    # Stop execution here
+    print("Stopping execution before training loop.")
+    return
 
     # Training loop
     for epoch in range(EPOCHS):
