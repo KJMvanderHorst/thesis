@@ -2,7 +2,8 @@ import torch
 import numpy as np
 import pywt
 from scipy.signal import coherence
-from ...data.data_generation.data_config import SAMPLING_RATE
+from src.data.data_generation.data_config import SAMPLING_RATE
+from src.models.losses.loss_config import WAVELET_COHERENCE_PARAM
 
 def compute_wavelet_coherence(components, input_signal):
     """
@@ -32,4 +33,4 @@ def compute_wavelet_coherence(components, input_signal):
                 pair_count += 1
 
     average_coherence = total_coherence / max(pair_count, 1)
-    return torch.tensor(average_coherence, device=components.device, dtype=components.dtype)
+    return torch.tensor(average_coherence, device=components.device, dtype=components.dtype) * WAVELET_COHERENCE_PARAM
