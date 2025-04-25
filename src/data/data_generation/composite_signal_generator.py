@@ -66,6 +66,7 @@ class SyntheticSignalGenerator:
         # Generate frequency segments
         B_segments = self.generate_bandwidth(k, f0, bandwidth)
         components = []
+        signals = []
 
         for i in range(k):
             # Generate the duration of the signal based on some probability of intermittence
@@ -125,11 +126,13 @@ class SyntheticSignalGenerator:
             t_end_idx = t_start_idx + len(generated_signal)
             padded_signal[t_start_idx:t_end_idx] = generated_signal  # Insert the intermittent signal
 
+            signals.append(signal)
+
             components.append(padded_signal)
 
         # Sum all components to create the composite signal
         composite_signal = np.sum(components, axis=0)
-        return composite_signal, components
+        return composite_signal, components, signals
     
     def generate_bandwidth(self, k, f0, bandwidth):
         """
@@ -165,3 +168,25 @@ class SyntheticSignalGenerator:
             segments[i, 1] += adjustment  # Adjust the end of the current segment
 
         return segments
+    
+
+# Example usage
+if __name__ == "__main__":
+    # Define parameters
+    fmin = 50  # Minimum frequency (Hz)
+    fmax = 500  # Maximum frequency (Hz)
+    duration = 1.0  # Duration of the signal (seconds)
+    signal_types = ['sine']
+    intermittence = 0.5  # Probability of generating an intermittent signal
+    overlap_factor = 0.5  # Factor to determine the overlap between segments
+    overlap_std = 0.1  # Standard deviation for the overlap adjustment
+
+    # Create an instance of the generator
+    generator = SyntheticSignalGenerator(fmin, fmax, duration, signal_types, intermittence, overlap_factor, overlap_std)
+
+    # Generate a composite signal with k segments
+    composite_signal, components, signals = generator.generate_signal(f0=generator.fmin, bandwidth=generator.fmax-generator.fmin, k=3)
+    print("Signal 1 frequency:", signals[0].frequency)
+    print("Signal 2 frequency:", signals[1].frequency)
+    print("Signal 3 frequency:", signals[2].frequency)
+
