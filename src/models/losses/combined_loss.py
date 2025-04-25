@@ -1,12 +1,10 @@
 from .mse_loss import mse_loss
 from .wavelet_coherence_loss import compute_wavelet_coherence
-#from .embedding_loss import compute_embedding_loss
-from .bandlimiting.band_leakage_loss import band_leakage_loss
+from .band_leakage_loss import band_leakage_loss
 
 LOSS_FUNCTIONS = {
     'mse': mse_loss,
     'wavelet_coherence': compute_wavelet_coherence,
-    #'embedding_loss': compute_embedding_loss,
     'band_leakage': band_leakage_loss  # Assuming band_leakage uses the same function
 }
 
