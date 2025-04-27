@@ -12,21 +12,22 @@ from src.models.losses.band_leakage_loss import band_leakage_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = 100
+BATCH_SIZE = 5
 EPOCHS = 20
-loss_list = ['mse', 'wavelet_coherence']  # List of loss functions to use
+loss_list = ['wavelet_coherence', 'mse']  # List of loss functions to use
 LEARNING_RATE = 1e-3
 N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
-DATA_PATH = "src/data/data_storage/composite_signals_20250425T153555.npz"  # Update with your dataset path
-MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test_with_bands.pth"  # Specify a file name
+DATA_PATH = "src/data/data_storage/composite_signals_20250427T205057.npz"  # Update with your dataset path
+MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test.pth"  # Specify a file name
 
 def train():
+    band_leakage_bool = False  # Set to True if you want to include band leakage loss
     # Load the full dataset
     full_dataset = SignalDataset(DATA_PATH, include_frequency_bands=True)  # Set include_frequency_bands to True
 
     # Split into train and test sets
     train_indices, test_indices = train_test_split(
-        range(len(full_dataset)), test_size=0.2, random_state=42
+        range(len(full_dataset)), test_size=0.1, random_state=42
     )
 
     # Create train and test datasets
@@ -61,10 +62,13 @@ def train():
             predicted_components = model(composite_signals)
 
             # Compute loss
-            loss = compute_combined_loss(predicted_components, composite_signals, loss_list=loss_list)
+            if not loss_list:
+                loss = torch.tensor(0.0, requires_grad=True).to(DEVICE)  # Default to zero loss if loss_list is empty
+            else:
+                loss = compute_combined_loss(predicted_components, composite_signals, loss_list=loss_list)
 
 
-            if(epoch > 10):
+            if(band_leakage_bool == True):
                 band_leakage = band_leakage_loss(predicted_components, frequency_bands)
                 loss = loss + band_leakage
 

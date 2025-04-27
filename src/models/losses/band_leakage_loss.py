@@ -51,4 +51,8 @@ def band_leakage_loss(components, frequency_bands):
     # Average the band leakage over all components and the batch
     band_leakage_loss_value = band_leakage.mean()
 
-    return band_leakage_loss_value * BAND_LEAKAGE_PARAM
+    # Ensure BAND_LEAKAGE_PARAM is a tensor
+    band_leakage_param_tensor = torch.tensor(BAND_LEAKAGE_PARAM, device=components.device, dtype=band_leakage_loss_value.dtype)
+
+    # Return the scaled loss as a PyTorch tensor
+    return band_leakage_loss_value * band_leakage_param_tensor
