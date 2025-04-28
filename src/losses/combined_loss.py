@@ -1,6 +1,6 @@
-from src.models.losses.wavelet_coherence_loss import compute_wavelet_coherence
-from src.models.losses.mse_loss import mse_loss
-from src.models.losses.band_leakage_loss import band_leakage_loss
+from src.losses.wavelet_coherence_loss import compute_wavelet_coherence
+from src.losses.mse_loss import mse_loss
+from src.losses.band_leakage_loss import band_leakage_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
     """
