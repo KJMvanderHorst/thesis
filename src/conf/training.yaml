@@ -7,3 +7,7 @@ params:
     - mse
   model_save_path: "/Users/kaspervanderhorst/Desktop/thesis/models/rrcnn_decomposer_mock_test_with_bands.pth"
   n_components: 2  # Number of components for RRCNNDecomposer
+  loss_weights:
+    - wavelet_coherence_weight: 1.0
+    - reconstruction_loss_weight: 1.0
+    - band_leakage_weight: 1.0

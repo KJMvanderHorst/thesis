@@ -9,7 +9,6 @@ import os
 from src.models.base_model import RRCNNDecomposer
 from src.data.dataset import SignalDataset
 from src.losses.combined_loss import compute_combined_loss
-from src.losses.band_leakage_loss import band_leakage_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,6 +61,7 @@ def train(cfg):
                 loss_list=cfg.params.loss_list,
                 frequency_bands=frequency_bands,
                 input_signal=composite_signals,
+                weights =cfg.params.loss_weights,
             )
 
             # Backward pass and optimization

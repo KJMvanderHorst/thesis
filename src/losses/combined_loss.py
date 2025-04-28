@@ -27,6 +27,6 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
             raise ValueError(f"Unknown loss function: {loss_name}")
         # Call the appropriate loss function with **kwargs
         loss_fn = loss_functions[loss_name]
-        #switch case for loss function
-        total_loss += loss_fn(predicted, **kwargs)
+
+        total_loss += loss_fn(predicted, **kwargs) * kwargs['loss_weights'][loss_name]
     return total_loss
