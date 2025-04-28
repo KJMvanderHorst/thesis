@@ -47,22 +47,25 @@ def generate_and_store_dataset(generator, num_signals, num_components):
     # Initialize lists to store the dataset
     composite_signals = []
     all_components = []
+    all_signals = []
 
     for _ in range(num_signals):
         # Generate a composite signal and its components
-        composite_signal, components = generator.generate_signal(f0=generator.fmin, bandwidth= generator.fmax - generator.fmin , k=num_components)
+        composite_signal, components, signals = generator.generate_signal(f0=generator.fmin, bandwidth= generator.fmax - generator.fmin , k=num_components)
         composite_signals.append(composite_signal)
         all_components.append(components)
+        all_signals.append(signals)
 
     # Convert the dataset to NumPy arrays
     composite_signals = np.array(composite_signals)
     all_components = np.array(all_components)
+    all_signals = np.array(all_signals)
 
     # Save the dataset as an NPZ file with the unique identifier
     dataset_filename = f"composite_signals_{unique_id}.npz"
     dataset_path = os.path.join(output_folder, "data_storage", dataset_filename)
     os.makedirs(os.path.dirname(dataset_path), exist_ok=True)
-    np.savez_compressed(dataset_path, composite_signals=composite_signals, components=all_components)
+    np.savez_compressed(dataset_path, composite_signals=composite_signals, components=all_components, signals=all_signals)
 
     # Save the parameters used for the entire dataset as a JSON file with the same unique identifier
     params = {
