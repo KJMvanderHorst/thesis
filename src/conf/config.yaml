@@ -1,0 +1,7 @@
+defaults:
+  - model: default_model
+  - loss: default_loss
+  - dataset: default_dataset
+  - training: default_training
+
+seed: 42
