@@ -1,0 +1,4 @@
+name: "default_model"
+parameters:
+  n_components: 3
+  signal_length: 128
