@@ -1,7 +1,7 @@
 defaults:
-  - model: default_model
-  - loss: default_loss
-  - dataset: default_dataset
-  - training: default_training
+  - _self_  # Include the current file
+  - training: training
+  - model: model
+  - dataset: dataset
 
 seed: 42
