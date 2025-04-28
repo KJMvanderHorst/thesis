@@ -1,8 +1,6 @@
 import torch
 import torch.nn.functional as F
 
-from src.models.losses.loss_config import MSE_LOSS_PARAM
-
 def mse_loss(components, **kwargs):
     """
     Compute the Mean Squared Error (MSE) loss between the summed components (reconstruction)
@@ -30,5 +28,5 @@ def mse_loss(components, **kwargs):
 
     # Compute MSE loss between the reconstruction and the original input signal
     loss = F.mse_loss(reconstruction, input_signal, reduction='mean')  # Mean reduction over batch and signal length
-    return loss * MSE_LOSS_PARAM
+    return loss
 
