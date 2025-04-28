@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
+import hydra
 
 
 from src.models.base_model import RRCNNDecomposer
@@ -20,7 +21,11 @@ N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
 DATA_PATH = "src/data/data_storage/composite_signals_20250427T205057.npz"  # Update with your dataset path
 MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test.pth"  # Specify a file name
 
-def train():
+@hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
+def train(cfg):
+    print("Training configuration:")
+    print(cfg)
+    return
     # Load the full dataset
     full_dataset = SignalDataset(DATA_PATH, include_frequency_bands=True)
 
