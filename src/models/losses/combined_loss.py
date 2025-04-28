@@ -1,18 +1,30 @@
-from .mse_loss import mse_loss
-from .wavelet_coherence_loss import compute_wavelet_coherence
-from .band_leakage_loss import band_leakage_loss
+from src.models.losses import wavelet_coherence_loss, mse_loss, band_leakage_loss
 
-LOSS_FUNCTIONS = {
-    'mse': mse_loss,
-    'wavelet_coherence': compute_wavelet_coherence,
-    'band_leakage': band_leakage_loss  # Assuming band_leakage uses the same function
-}
+def compute_combined_loss(predicted, loss_list, **kwargs):
+    """
+    Compute a combined loss based on the specified loss functions.
 
-def compute_combined_loss(components, input_signal, loss_list):
+    Args:
+        predicted (torch.Tensor): Predicted outputs from the model.
+        loss_list (list): List of loss function names to use.
+        kwargs: Additional arguments for the loss functions.
+
+    Returns:
+        torch.Tensor: Combined loss value.
+    """
+    loss_functions = {
+        "wavelet_coherence": wavelet_coherence_loss,
+        "mse": mse_loss,
+        "band_leakage": band_leakage_loss,
+    }
+
     total_loss = 0.0
-    for name in loss_list:
-        loss_fn = LOSS_FUNCTIONS.get(name)
-        if loss_fn is None:
-            raise ValueError(f"Loss '{name}' is not defined.")
-        total_loss += loss_fn(components, input_signal)
+
+    for loss_name in loss_list:
+        if loss_name not in loss_functions:
+            raise ValueError(f"Unknown loss function: {loss_name}")
+        # Call the appropriate loss function with **kwargs
+        loss_fn = loss_functions[loss_name]
+        #switch case for loss function
+        total_loss += loss_fn(predicted, **kwargs)
     return total_loss
