@@ -8,8 +8,8 @@ import os
 
 from src.models.base_model import RRCNNDecomposer
 from src.data.dataset import SignalDataset
-from src.models.losses.combined_loss import compute_combined_loss
-from src.models.losses.band_leakage_loss import band_leakage_loss
+from src.losses.combined_loss import compute_combined_loss
+from src.losses.band_leakage_loss import band_leakage_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
