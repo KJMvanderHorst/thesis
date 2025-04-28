@@ -4,7 +4,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 import hydra
-
+import os
 
 from src.models.base_model import RRCNNDecomposer
 from src.data.dataset import SignalDataset
@@ -13,25 +13,17 @@ from src.models.losses.band_leakage_loss import band_leakage_loss
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-BATCH_SIZE = 5
-EPOCHS = 20
-loss_list = ['wavelet_coherence', 'mse']  # List of loss functions to use
-LEARNING_RATE = 1e-3
-N_COMPONENTS = 2  # Number of components for RRCNNDecomposer
-DATA_PATH = "src/data/data_storage/composite_signals_20250427T205057.npz"  # Update with your dataset path
-MODEL_SAVE_PATH = "models/rrcnn_decomposer_mock_test.pth"  # Specify a file name
+
 
 @hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
 def train(cfg):
-    print("Training configuration:")
-    print(cfg)
-    return
+    print(cfg)  # Print the full configuration to debug
     # Load the full dataset
-    full_dataset = SignalDataset(DATA_PATH, include_frequency_bands=True)
+    full_dataset = SignalDataset(cfg.data_path, cfg.include_frequency_bands)
 
     # Split into train and test sets
     train_indices, test_indices = train_test_split(
-        range(len(full_dataset)), test_size=0.1, random_state=42
+        range(len(full_dataset)), test_size=cfg.test_size, random_state=cfg.random_state
     )
 
     # Create train and test datasets
@@ -39,22 +31,22 @@ def train(cfg):
     test_dataset = torch.utils.data.Subset(full_dataset, test_indices)
 
     # Create DataLoaders
-    train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=cfg.params.batch_size, shuffle=True)
+    test_loader = DataLoader(test_dataset, batch_size=cfg.params.batch_size, shuffle=False)
 
     # Initialize model
-    model = RRCNNDecomposer(n_components=N_COMPONENTS).to(DEVICE)
+    model = RRCNNDecomposer(n_components=cfg.params.n_components).to(DEVICE)
 
     # Define optimizer
-    optimizer = Adam(model.parameters(), lr=LEARNING_RATE)
+    optimizer = Adam(model.parameters(), lr=cfg.params.learning_rate)
 
     # Training loop
-    for epoch in range(EPOCHS):
+    for epoch in range(cfg.params.epochs):
         model.train()
         epoch_loss = 0.0
 
         # Iterate over batches
-        for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{EPOCHS}")):
+        for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{cfg.params.epochs}")):
             # Unpack the batch
             composite_signals, components, frequency_bands = batch
 
@@ -68,7 +60,7 @@ def train(cfg):
             # Compute loss
             loss = compute_combined_loss(
                 predicted_components,
-                loss_list=loss_list,
+                loss_list=cfg.params.loss_list,
                 frequency_bands=frequency_bands,
                 input_signal=composite_signals,
             )
@@ -82,11 +74,11 @@ def train(cfg):
             epoch_loss += loss.item()
 
         # Log epoch loss
-        print(f"Epoch {epoch + 1}/{EPOCHS}, Loss: {epoch_loss / len(train_loader)}")
+        print(f"Epoch {epoch + 1}/{cfg.params.epochs}, Loss: {epoch_loss / len(train_loader)}")
 
     # Save the trained model
-    torch.save(model.state_dict(), MODEL_SAVE_PATH)
-    print(f"Model saved to {MODEL_SAVE_PATH}")
+    torch.save(model.state_dict(), cfg.params.model_save_path)
+    print(f"Model saved to {cfg.params.model_save_path}")
 
 if __name__ == "__main__":
     train()
