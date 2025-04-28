@@ -1,5 +1,4 @@
 import torch
-from src.models.losses.loss_config import WAVELET_COHERENCE_PARAM
 
 def compute_wavelet_coherence(components, **kwargs):
     """
@@ -35,4 +34,4 @@ def compute_wavelet_coherence(components, **kwargs):
                 pair_count += 1
 
     average_coherence = total_coherence / max(pair_count, 1)
-    return average_coherence * WAVELET_COHERENCE_PARAM
+    return average_coherence
