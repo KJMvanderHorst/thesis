@@ -17,7 +17,6 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
 def train(cfg):
-    print(cfg)  # Print the full configuration to debug
     # Load the full dataset
     full_dataset = SignalDataset(cfg.data_path, cfg.include_frequency_bands)
 
