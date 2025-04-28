@@ -5,5 +5,5 @@ params:
   loss_list:
     - wavelet_coherence
     - mse
-  model_save_path: "models/rrcnn_decomposer_mock_test.pth"
+  model_save_path: "/Users/kaspervanderhorst/Desktop/thesis/models/rrcnn_decomposer_mock_test_with_bands.pth"
   n_components: 2  # Number of components for RRCNNDecomposer
