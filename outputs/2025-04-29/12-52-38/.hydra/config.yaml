@@ -1,0 +1,19 @@
+seed: 42
+params:
+  batch_size: 5
+  epochs: 20
+  learning_rate: 0.001
+  loss_list:
+  - wavelet_coherence
+  - mse
+  model_save_path: models/rrcnn_decomposer_mock_test_with_bands.pth
+  n_components: 2
+  loss_weights:
+  - wavelet_coherence_weight: 1.0
+  - reconstruction_loss_weight: 1.0
+  - band_leakage_weight: 1.0
+n_components: 2
+data_path: src/data/data_storage/composite_signals_20250427T205057.npz
+include_frequency_bands: true
+test_size: 0.1
+random_state: 42
