@@ -1,0 +1,7 @@
+defaults:
+  - _self_  # Include the current file
+  - training
+  - model
+  - dataset
+
+seed: 42
