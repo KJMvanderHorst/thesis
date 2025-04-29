@@ -1,15 +1,14 @@
 import os
 import torch
 import hydra
-from torch.utils.data import DataLoader
+
 from torch.optim import Adam
 from tqdm import tqdm
-from sklearn.model_selection import train_test_split
-
 
 from src.models.base_model import RRCNNDecomposer
 from src.data.dataset import SignalDataset
 from src.losses.combined_loss import compute_combined_loss
+from src.training.prepare_data import prepare_data
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -17,28 +16,20 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
 def train(cfg):
+    print("Training configuration:")
+    print(cfg)
     # Get the project root directory
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
-    # Resolve paths relative to the project root
-    model_save_path = os.path.join(project_root, cfg.params.model_save_path)
+    # Define paths
     data_path = os.path.join(project_root, cfg.data_path)
+    model_save_path = os.path.join(project_root, cfg.params.model_save_path)
 
-    # Load the full dataset
-    full_dataset = SignalDataset(data_path, cfg.include_frequency_bands)
+    # Ensure the model save directory exists
+    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
 
-    # Split into train and test sets
-    train_indices, test_indices = train_test_split(
-        range(len(full_dataset)), test_size=cfg.test_size, random_state=cfg.random_state
-    )
-
-    # Create train and test datasets
-    train_dataset = torch.utils.data.Subset(full_dataset, train_indices)
-    test_dataset = torch.utils.data.Subset(full_dataset, test_indices)
-
-    # Create DataLoaders
-    train_loader = DataLoader(train_dataset, batch_size=cfg.params.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=cfg.params.batch_size, shuffle=False)
+    # Prepare data
+    train_loader, test_loader = prepare_data(cfg, data_path=data_path)
 
     # Initialize model
     model = RRCNNDecomposer(n_components=cfg.params.n_components).to(DEVICE)
