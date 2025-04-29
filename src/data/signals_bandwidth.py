@@ -1,7 +1,8 @@
 import numpy as np
 from scipy.fft import fft, fftfreq
 from scipy.ndimage import gaussian_filter1d
-from src.data.data_generation.data_config import SAMPLING_RATE
+
+SAMPLING_RATE = 1000 #TODO : move to config will fix later
 
 def compute_bandwidths(signals, target_bands=2, sigma=0.5, num_thresholds=100):
     """

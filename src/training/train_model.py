@@ -12,9 +12,10 @@ from src.training.prepare_data import prepare_data
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+# Dynamically determine the relative config path
+CONFIG_PATH = os.path.relpath(os.path.join(os.path.dirname(__file__), "../conf"))
 
-
-@hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
+@hydra.main(version_base="1.1", config_path="../conf", config_name="config")
 def train(cfg):
     # Get the project root directory
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
