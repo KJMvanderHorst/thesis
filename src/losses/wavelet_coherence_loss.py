@@ -1,6 +1,6 @@
 import torch
 
-def compute_wavelet_coherence(components, **kwargs):
+def wavelet_coherence_loss(components, **kwargs):
     """
     Computes the average pairwise wavelet coherence between decomposed components.
 

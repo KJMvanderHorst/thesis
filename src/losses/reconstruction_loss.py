@@ -1,7 +1,6 @@
-import torch
 import torch.nn.functional as F
 
-def mse_loss(components, **kwargs):
+def reconstruction_loss(components, **kwargs):
     """
     Compute the Mean Squared Error (MSE) loss between the summed components (reconstruction)
     and the original input signal.

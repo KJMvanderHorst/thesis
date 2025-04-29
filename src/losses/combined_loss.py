@@ -1,5 +1,5 @@
-from src.losses.wavelet_coherence_loss import compute_wavelet_coherence
-from src.losses.mse_loss import mse_loss
+from src.losses.wavelet_coherence_loss import wavelet_coherence_loss
+from src.losses.reconstruction_loss import reconstruction_loss
 from src.losses.band_leakage_loss import band_leakage_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
@@ -15,8 +15,8 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
         torch.Tensor: Combined loss value.
     """
     loss_functions = {
-        "wavelet_coherence": compute_wavelet_coherence,
-        "mse": mse_loss,
+        "wavelet_coherence": wavelet_coherence_loss,
+        "reconstruction": reconstruction_loss,
         "band_leakage": band_leakage_loss,
     }
 

@@ -1,10 +1,11 @@
+import os
 import torch
+import hydra
 from torch.utils.data import DataLoader
 from torch.optim import Adam
 from tqdm import tqdm
 from sklearn.model_selection import train_test_split
-import hydra
-import os
+
 
 from src.models.base_model import RRCNNDecomposer
 from src.data.dataset import SignalDataset
@@ -16,8 +17,15 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
 def train(cfg):
+    # Get the project root directory
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    # Resolve paths relative to the project root
+    model_save_path = os.path.join(project_root, cfg.params.model_save_path)
+    data_path = os.path.join(project_root, cfg.data_path)
+
     # Load the full dataset
-    full_dataset = SignalDataset(cfg.data_path, cfg.include_frequency_bands)
+    full_dataset = SignalDataset(data_path, cfg.include_frequency_bands)
 
     # Split into train and test sets
     train_indices, test_indices = train_test_split(
@@ -61,7 +69,7 @@ def train(cfg):
                 loss_list=cfg.params.loss_list,
                 frequency_bands=frequency_bands,
                 input_signal=composite_signals,
-                weights =cfg.params.loss_weights,
+                loss_weights=cfg.params.loss_weights,
             )
 
             # Backward pass and optimization
@@ -76,8 +84,8 @@ def train(cfg):
         print(f"Epoch {epoch + 1}/{cfg.params.epochs}, Loss: {epoch_loss / len(train_loader)}")
 
     # Save the trained model
-    torch.save(model.state_dict(), cfg.params.model_save_path)
-    print(f"Model saved to {cfg.params.model_save_path}")
+    torch.save(model.state_dict(), model_save_path)
+    print(f"Model saved to {model_save_path}")
 
 if __name__ == "__main__":
     train()
