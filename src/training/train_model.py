@@ -16,8 +16,6 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 @hydra.main(version_base="1.1", config_path="/Users/kaspervanderhorst/Desktop/thesis/src/conf", config_name="config")
 def train(cfg):
-    print("Training configuration:")
-    print(cfg)
     # Get the project root directory
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
