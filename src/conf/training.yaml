@@ -4,10 +4,10 @@ params:
   learning_rate: 1e-3
   loss_list:
     - wavelet_coherence
-    - mse
-  model_save_path: "/Users/kaspervanderhorst/Desktop/thesis/models/rrcnn_decomposer_mock_test_with_bands.pth"
+    - reconstruction
+  model_save_path: models/rrcnn_decomposer_mock_test_with_bands.pth
   n_components: 2  # Number of components for RRCNNDecomposer
   loss_weights:
-    - wavelet_coherence_weight: 1.0
-    - reconstruction_loss_weight: 1.0
-    - band_leakage_weight: 1.0
+    wavelet_coherence: 1.0
+    reconstruction: 1.0
+    band_leakage: 1.0
