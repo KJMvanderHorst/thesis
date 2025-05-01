@@ -1,6 +1,8 @@
 from src.losses.wavelet_coherence_loss import wavelet_coherence_loss
 from src.losses.reconstruction_loss import reconstruction_loss
 from src.losses.band_leakage_loss import band_leakage_loss
+from src.losses.true_loss import true_loss
+from src.losses.band_overlap_loss import band_overlap_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
     """
@@ -18,6 +20,8 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
         "wavelet_coherence": wavelet_coherence_loss,
         "reconstruction": reconstruction_loss,
         "band_leakage": band_leakage_loss,
+        "band_overlap": band_overlap_loss,
+        "true_loss": true_loss,
     }
 
     total_loss = 0.0

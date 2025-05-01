@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class MultiScaleRRCNNLayer(nn.Module):
-    def __init__(self, conv_channels=16, kernel_sizes=(3, 5, 7)):
+    def __init__(self, conv_channels=16, kernel_sizes=(3, 5, 30)):
         """
         Multi-scale RRCNN layer with multiple convolutional layers of different kernel sizes.
 

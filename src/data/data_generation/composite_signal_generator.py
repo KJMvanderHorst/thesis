@@ -112,6 +112,15 @@ class SyntheticSignalGenerator:
             signals.append(signal)
             components.append(padded_signal)
 
+        # Sort B_segments by the start frequency
+        sorted_indices = np.argsort(B_segments[:, 0])
+        B_segments = B_segments[sorted_indices]
+
+        # Reorder components to match the sorted B_segments
+        components = [components[i] for i in sorted_indices]
+
+        #this ensures that the components are in the same order as the frequency segments
+
         # Sum all components to create the composite signal
         composite_signal = np.sum(components, axis=0)
         return composite_signal, components, signals
