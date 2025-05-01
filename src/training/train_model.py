@@ -6,6 +6,7 @@ from torch.optim import Adam
 from tqdm import tqdm
 
 from src.models.base_model import RRCNNDecomposer
+from src.models.base_model import MultiScaleRRCNNDecomposer
 from src.data.dataset import SignalDataset
 from src.losses.combined_loss import compute_combined_loss
 from src.training.prepare_data import prepare_data
@@ -60,6 +61,7 @@ def train(cfg):
                 frequency_bands=frequency_bands,
                 input_signal=composite_signals,
                 loss_weights=cfg.params.loss_weights,
+                ground_truth=components,
             )
 
             # Backward pass and optimization

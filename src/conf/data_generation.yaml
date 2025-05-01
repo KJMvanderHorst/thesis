@@ -1,10 +1,10 @@
 generator:
-  fmin: 20
-  fmax: 200
-  duration: 5.0
+  fmin: 10
+  fmax: 100
+  duration: 1.0
   signal_types: ["sine"]
-  intermittence: 0.5
-  overlap_factor: 0.3
+  intermittence: 0.0
+  overlap_factor: 0.2
   overlap_std: 0.05
 
 constants:
@@ -19,6 +19,6 @@ constants:
 
 dataset:
   num_signals: 100
-  num_components: 5
+  num_components: 2
 
 output_folder: src/data/data_storage
