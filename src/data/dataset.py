@@ -1,8 +1,9 @@
 import os
 import numpy as np
 import torch
-from torch.utils.data import Dataset, DataLoader
+from torch.utils.data import Dataset
 from src.data.signals_bandwidth import compute_bandwidths
+import pickle
 
 class SignalDataset(Dataset):
     """
@@ -20,13 +21,21 @@ class SignalDataset(Dataset):
         self.data = np.load(dataset_path)
         self.composite_signals = torch.tensor(self.data["composite_signals"]).float()  # Shape: [num_samples, time_steps]
         self.components = torch.tensor(self.data["components"]).float()  # Shape: [num_samples, time_steps, num_components]
-        if (include_frequency_bands):
-            # Call the function to calculate frequency bands from signals_bandwidth
-            self.frequency_bands = compute_bandwidths(self.composite_signals)
-            self.frequency_bands = torch.tensor(self.frequency_bands).float()  # Convert to tensor
-        else:
-            self.frequency_bands = None
-        #add frequency bands here
+        # Handle frequency bands
+        self.frequency_bands = None
+        if include_frequency_bands:
+            precomputed_path = dataset_path.replace(".npz", "_freq_bands.pkl")
+            if os.path.exists(precomputed_path):
+                # Load precomputed frequency bands
+                with open(precomputed_path, "rb") as f:
+                    self.frequency_bands = pickle.load(f)
+                self.frequency_bands = torch.tensor(self.frequency_bands).float()
+            else:
+                # Compute frequency bands and save them
+                self.frequency_bands = compute_bandwidths(self.composite_signals)
+                with open(precomputed_path, "wb") as f:
+                    pickle.dump(self.frequency_bands, f)
+                self.frequency_bands = torch.tensor(self.frequency_bands).float()
 
     def __len__(self):
         """
