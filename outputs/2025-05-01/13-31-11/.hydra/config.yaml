@@ -1,0 +1,21 @@
+seed: 42
+params:
+  batch_size: 5
+  epochs: 20
+  learning_rate: 0.001
+  loss_list:
+  - band_leakage
+  - band_overlap
+  model_save_path: models/band_leakage_overlap_100.pth
+  n_components: 2
+  loss_weights:
+    wavelet_coherence: 1.0
+    reconstruction: 1.0
+    band_leakage: 1.0
+    true_loss: 1.0
+    band_overlap: 100
+n_components: 2
+data_path: src/data/data_storage/composite_signals_20250501T130125.npz
+include_frequency_bands: true
+test_size: 0.1
+random_state: 42
