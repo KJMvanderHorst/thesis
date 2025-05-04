@@ -4,4 +4,11 @@ defaults:
   - model
   - dataset
 
+hydra:
+  job_logging:
+    disable_existing_loggers: true
+  run:
+    dir: .
+  output_subdir: null
+
 seed: 42
