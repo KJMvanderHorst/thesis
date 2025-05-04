@@ -1,4 +1,5 @@
 import os
+import sys
 import torch
 import hydra
 
@@ -7,7 +8,6 @@ from tqdm import tqdm
 
 from src.models.base_model import RRCNNDecomposer
 from src.models.base_model import MultiScaleRRCNNDecomposer
-from src.data.dataset import SignalDataset
 from src.losses.combined_loss import compute_combined_loss
 from src.training.prepare_data import prepare_data
 
