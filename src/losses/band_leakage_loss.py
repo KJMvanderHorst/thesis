@@ -21,17 +21,33 @@ def band_leakage_loss(components, **kwargs):
     n_bands = frequency_bands.shape[1]
 
     # Compute the frequency axis for the FFT (only positive frequencies for real-valued signals)
-    freqs = torch.fft.rfftfreq(signal_length, d=1.0).to(components.device)  # Shape: [signal_length // 2 + 1]
+    freqs = torch.fft.rfftfreq(signal_length, d=1000).to(components.device)  # Shape: [signal_length // 2 + 1]
 
     # Compute the power spectrum for all components (only positive frequencies)
-    power_spectrum = torch.abs(torch.fft.rfft(components, dim=-1))**2  # Shape: [batch_size, n_components, signal_length // 2 + 1]
+    power_spectrum = torch.abs(torch.fft.rfft(components, dim=-1))  # Shape: [batch_size, n_components, signal_length // 2 + 1]
 
+    # Plot the components and their power spectrum
+    for i in range(components.shape[0]):  # Limit to 5 examples for visualization
+        plt.figure(figsize=(12, 6))
+
+        # Plot the time-domain components
+        plt.subplot(2, 1, 1)
+        for j in range(components.shape[1]):
+            plt.plot(components[i, j].cpu().detach().numpy(), label=f'Component {j+1}')
+        plt.title(f'Components (Batch {i+1})')
+        plt.xlabel('Time')
+        plt.ylabel('Amplitude')
+        plt.legend()
+
+        # Plot the power spectrum
+        plt.subplot(2, 1, 2)
+        for j in range(power_spectrum.shape[1]):
+            plt.plot(freqs.squeeze().cpu().detach().numpy(), power_spectrum[i, j].cpu().detach().numpy(), label=f'Component {j}+1')
     # Expand frequency axis for broadcasting
     freqs = freqs.unsqueeze(0).unsqueeze(0)  # Shape: [1, 1, signal_length // 2 + 1]
 
-    # Normalize frequency bands to the range [0, 0.5]
-    fmin = (frequency_bands[:, :, 0] / 1000).unsqueeze(-1)  # Shape: [batch_size, n_bands, 1]
-    fmax = (frequency_bands[:, :, 1] / 1000).unsqueeze(-1)
+    fmin = (frequency_bands[:, :, 0]).unsqueeze(-1)  # Shape: [batch_size, n_bands, 1]
+    fmax = (frequency_bands[:, :, 1]).unsqueeze(-1)
 
     # Compute masks for frequencies outside the bands
     below_band_mask = (freqs < fmin).float()  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
