@@ -18,7 +18,7 @@ constants:
   sampling_rate: 1000
 
 dataset:
-  num_signals: 100
+  num_signals: 2
   num_components: 2
 
 output_folder: src/data/data_storage

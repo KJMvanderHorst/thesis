@@ -69,6 +69,16 @@ def train(cfg):
             # Backward pass and optimization
             optimizer.zero_grad()
             loss.backward()
+            """for name, param in model.named_parameters():
+                if param.grad is not None:
+                    grad_mean = param.grad.abs().mean().item()
+                    print(f"Gradient for {name}: {grad_mean}")
+                    if grad_mean < 1e-6:
+                        print(f"Warning: Gradient for {name} is very small!")
+                    elif grad_mean > 1e2:
+                        print(f"Warning: Gradient for {name} is very large!")
+                else:
+                    print(f"Gradient for {name}: No gradient")"""
             optimizer.step()
 
             # Accumulate loss
