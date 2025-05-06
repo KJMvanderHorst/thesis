@@ -20,21 +20,24 @@ def band_leakage_loss(components, **kwargs):
     batch_size, n_components, signal_length = components.shape
     n_bands = frequency_bands.shape[1]
 
+    # Mean-center the components along the time axis
+    components = components - components.mean(dim=-1, keepdim=True)
+
     # Compute the frequency axis for the FFT (only positive frequencies for real-valued signals)
-    freqs = torch.fft.rfftfreq(signal_length, d=1000).to(components.device)  # Shape: [signal_length // 2 + 1]
+    freqs = torch.fft.rfftfreq(signal_length, d=1/1000).to(components.device)  # Shape: [signal_length // 2 + 1]
 
     # Compute the power spectrum for all components (only positive frequencies)
     power_spectrum = torch.abs(torch.fft.rfft(components, dim=-1))  # Shape: [batch_size, n_components, signal_length // 2 + 1]
 
     # Plot the components and their power spectrum
-    for i in range(components.shape[0]):  # Limit to 5 examples for visualization
+    """for i in range(components.shape[0]):
         plt.figure(figsize=(12, 6))
 
         # Plot the time-domain components
         plt.subplot(2, 1, 1)
         for j in range(components.shape[1]):
             plt.plot(components[i, j].cpu().detach().numpy(), label=f'Component {j+1}')
-        plt.title(f'Components (Batch {i+1})')
+        plt.title(f'Components (Batch element {i+1})')
         plt.xlabel('Time')
         plt.ylabel('Amplitude')
         plt.legend()
@@ -42,38 +45,113 @@ def band_leakage_loss(components, **kwargs):
         # Plot the power spectrum
         plt.subplot(2, 1, 2)
         for j in range(power_spectrum.shape[1]):
-            plt.plot(freqs.squeeze().cpu().detach().numpy(), power_spectrum[i, j].cpu().detach().numpy(), label=f'Component {j}+1')
+            plt.plot(freqs.squeeze().cpu().detach().numpy(), power_spectrum[i, j].cpu().detach().numpy(), label=f'Component {j+1}')
+        
+        # Add shaded regions for the frequency bands
+        for band in range(frequency_bands.shape[1]):
+            fmin = frequency_bands[i, band, 0].cpu().detach().numpy()
+            fmax = frequency_bands[i, band, 1].cpu().detach().numpy()
+            plt.axvspan(fmin, fmax, color='gray', alpha=0.3, label=f'Band {band+1}' if j == 0 else None)
+
+        plt.title(f'Power Spectrum (Batch {i+1})')
+        plt.xlabel('Frequency (Hz)')
+        plt.ylabel('Power')
+        plt.legend()
+
+        plt.tight_layout()
+        plt.show()"""
+
     # Expand frequency axis for broadcasting
     freqs = freqs.unsqueeze(0).unsqueeze(0)  # Shape: [1, 1, signal_length // 2 + 1]
 
-    fmin = (frequency_bands[:, :, 0]).unsqueeze(-1)  # Shape: [batch_size, n_bands, 1]
-    fmax = (frequency_bands[:, :, 1]).unsqueeze(-1)
+    margin = 5.0  # Example: Expand bands by 10 Hz on each side
+    fmin = (frequency_bands[:, :, 0] - margin).unsqueeze(-1)  # Shape: [batch_size, n_bands, 1]
+    fmax = (frequency_bands[:, :, 1] + margin).unsqueeze(-1)
 
     # Compute masks for frequencies outside the bands
     below_band_mask = (freqs < fmin).float()  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
     above_band_mask = (freqs > fmax).float()  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
 
     
-
     # Compute distances for out-of-band frequencies
     below_distance = (fmin - freqs) * below_band_mask  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
     above_distance = (freqs - fmax) * above_band_mask  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
     out_of_band_distance = below_distance + above_distance  # Shape: [batch_size, n_bands, signal_length // 2 + 1]
 
-    # Expand power spectrum for broadcasting
-    power_spectrum = power_spectrum.unsqueeze(2)  # Shape: [batch_size, n_components, 1, signal_length // 2 + 1]
+    # Normalize the frequency distance
+    max_distance = torch.max(torch.abs(out_of_band_distance))  # Maximum possible distance
+    normalized_out_of_band_distance = out_of_band_distance / (max_distance + 1e-8)  # Avoid division by zero
 
-    # Normalize the power spectrum to prevent it from dominating
-    normalized_power_spectrum = power_spectrum / power_spectrum.max()  # Normalize to [0, 1]
+    # Normalize the power spectrum
+    max_power = torch.max(power_spectrum)  # Maximum power value
+    normalized_power_spectrum = power_spectrum / (max_power + 1e-8)  # Avoid division by zero
 
-    # Compute weighted leakage for all bands and components
-    weighted_leakage = (out_of_band_distance.unsqueeze(1)**2 * power_spectrum).sum(dim=-1)  # Shape: [batch_size, n_components, n_bands]
+    # Compute the contribution of each frequency to the loss per component
+    frequency_contributions = (normalized_out_of_band_distance * normalized_power_spectrum)  #hape: [batch_size, n_components, signal_length // 2 + 1]
 
-    # Sum leakage across all bands
-    band_leakage = weighted_leakage.sum(dim=-1)  # Shape: [batch_size, n_components]
+    # Plot the out-of-band distance and power spectrum for each component
+    for i in range(frequency_contributions.shape[0]):  # Iterate over batch elements
+        for j in range(frequency_contributions.shape[1]):  # Iterate over components
+            plt.figure(figsize=(12, 12))
 
-    # Average the band leakage over all components and the batch
-    band_leakage_loss_value = band_leakage.mean()
+            # Plot the out-of-band distance for the current component
+            plt.subplot(2, 1, 1)
+            plt.plot(freqs.squeeze().cpu().detach().numpy(),
+                     out_of_band_distance[i].sum(dim=0).cpu().detach().numpy(),
+                     label=f'Out-of-Band Distance (Component {j+1})')
+            plt.title(f'Out-of-Band Distance (Batch {i+1}, Component {j+1})')
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Out-of-Band Distance')
+            plt.legend()
 
+            # Plot the power spectrum for the current component
+            plt.subplot(2, 1, 2)
+            plt.plot(freqs.squeeze().cpu().detach().numpy(),
+                     power_spectrum[i, j].cpu().detach().numpy(),
+                     label=f'Power Spectrum (Component {j+1})')
+            plt.title(f'Power Spectrum (Batch {i+1}, Component {j+1})')
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Power')
+            plt.legend()
+
+            plt.tight_layout()
+            plt.show()
+
+    # Plot the frequency contributions to the loss per component
+    for i in range(frequency_contributions.shape[0]):  # Iterate over batch elements
+        for j in range(frequency_contributions.shape[1]):  # Iterate over components
+            plt.figure(figsize=(12, 12))
+
+            # Plot the predicted component in the time domain
+            plt.subplot(2, 1, 1)
+            plt.plot(components[i, j].cpu().detach().numpy(), label=f'Predicted Component {j+1}')
+            plt.title(f'Predicted Component (Batch {i+1}, Component {j+1})')
+            plt.xlabel('Time')
+            plt.ylabel('Amplitude')
+            plt.legend()
+
+            # Plot the frequency contributions for the current component
+            plt.subplot(2, 1, 2)
+            plt.plot(freqs.squeeze().cpu().detach().numpy(),
+                    frequency_contributions[i, j].cpu().detach().numpy(),
+                    label=f'Frequency Contribution (Component {j+1})')
+
+            # Add shaded regions for the frequency bands
+            for band in range(frequency_bands.shape[1]):
+                fmin = frequency_bands[i, band, 0].cpu().detach().numpy()
+                fmax = frequency_bands[i, band, 1].cpu().detach().numpy()
+                plt.axvspan(fmin, fmax, color='gray', alpha=0.3, label=f'Band {band+1}' if j == 0 else None)
+
+            plt.title(f'Frequency Contributions to Loss (Batch {i+1}, Component {j+1})')
+            plt.xlabel('Frequency (Hz)')
+            plt.ylabel('Contribution to Loss')
+            plt.legend()
+
+            plt.tight_layout()
+            plt.show()
+    
+    # Compute the average band leakage loss across the batch based on the frequency contributions
+    band_leakage_loss_value = frequency_contributions.sum(dim=-1) / (signal_length // 2 + 1)  # Shape: [batch_size]
+    band_leakage_loss_value = band_leakage_loss_value.mean()  # Average over the batch
     # Return the scaled loss as a PyTorch tensor
     return band_leakage_loss_value
