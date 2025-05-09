@@ -5,12 +5,12 @@ params:
   loss_list:
     - band_leakage
     - reconstruction
-  model_save_path: models/debug_leakage.pth
+  model_save_path: models/debug_leakage_and_reconstruction_2.pth
   n_components: 2  # Number of components for RRCNNDecomposer
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0
-    band_leakage: 1.0
+    band_leakage: 1e-2
     true_loss: 1.0
     band_overlap: 0.000001
     ssft_coherence: 1
