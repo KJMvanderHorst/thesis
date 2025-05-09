@@ -58,8 +58,7 @@ def fft_coherence_loss(components, **kwargs):
     mags = torch.abs(fft_results)  # Magnitude spectrum: (B, C, F)
 
     # Normalize to unit norm for cosine similarity
-    mags_flat = mags.reshape(batch_size, n_components, -1)  # (B, C, F)
-    mags_flat = F.normalize(mags_flat, p=2, dim=-1)  # Unit L2 norm
+    mags_flat = F.normalize(mags, p=2, dim=-1)  # Unit L2 norm
 
     # Compute pairwise cosine similarity
     # Result shape: (B, C, C)

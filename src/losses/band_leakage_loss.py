@@ -1,6 +1,10 @@
 import torch
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
+import numpy as np
+import os
+
+training_run_losses = []
 
 def band_leakage_loss(components, **kwargs):
     """
@@ -81,9 +85,10 @@ def band_leakage_loss(components, **kwargs):
             plt.show()"""
 
     # Plot the frequency contributions to the loss per component
-    for i in range(frequency_contributions.shape[0]):  # Iterate over batch elements
+    """for i in range(frequency_contributions.shape[0]):  # Iterate over batch elements
         for j in range(frequency_contributions.shape[1]):  # Iterate over components
-            plt.figure(figsize=(8, 8))
+            print(f"Batch {i+1}, Component {j+1} Frequency Contributions:")
+            plt.figure(figsize=(8, 4))
 
             # Plot the predicted component in the time domain
             plt.subplot(2, 1, 1)
@@ -94,7 +99,6 @@ def band_leakage_loss(components, **kwargs):
             plt.legend()
 
             # Plot the frequency contributions for the current component
-            plt.subplot(2, 1, 2)
             plt.plot(freqs.squeeze().cpu().detach().numpy(),
                     frequency_contributions[i, j].cpu().detach().numpy(),
                     label=f'Frequency Contribution (Component {j+1})')
@@ -111,12 +115,56 @@ def band_leakage_loss(components, **kwargs):
             plt.legend()
 
             plt.tight_layout()
-            plt.show()
+            plt.show()"""
     
     # Compute the average band leakage loss across the batch based on the frequency contributions
-    band_leakage_loss_value = frequency_contributions.sum(dim=-1) # Shape: [batch_size]
-    print(f"Band Leakage Loss Value: {band_leakage_loss_value}")
+    band_leakage_loss_value = frequency_contributions.sum(dim=-1) # Shape: [batch_size, n_components]
+
+    # Compute the average band leakage loss across the batch and store per-component losses
+    band_leakage_per_component = band_leakage_loss_value.mean(dim=0)
+    training_run_losses.append(band_leakage_per_component.cpu().detach().numpy())
+
+    #print(f"Band Leakage Loss Value: {band_leakage_loss_value}")
     band_leakage_loss_value = band_leakage_loss_value.mean(dim=-1)  # Average over the components
     band_leakage_loss_value = band_leakage_loss_value.mean()  # Average over the batch
+
+
     # Return the scaled loss as a PyTorch tensor
     return band_leakage_loss_value
+
+def save_training_run_losses(filename='training_run_losses.npz'):
+    """
+    Save all accumulated per-component losses for the training run to a .npz file.
+
+    Args:
+        filename (str): The name of the file to save the losses.
+    """
+    global training_run_losses
+
+    # Get the project root directory
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+    # Define the target directory for saving the file
+    data_dir = os.path.join(project_root, "src/losses/band_leakage_loss_data")
+
+    # Ensure the directory exists
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Construct the full file path
+    data_path = os.path.join(data_dir, filename)
+
+    # Save the training run losses to the .npz file
+    np.savez(data_path, training_run_losses=np.array(training_run_losses))
+    print(f"Saved training run losses to {data_path}")
+
+    # Clear the list after saving
+    training_run_losses.clear()
+    print("Cleared training run losses list.")
+
+def clear_training_run_losses():
+    """
+    Clear the accumulated per-component losses for the training run.
+    """
+    global training_run_losses
+    training_run_losses.clear()
+    print("Cleared training run losses list.")

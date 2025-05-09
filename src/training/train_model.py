@@ -10,6 +10,7 @@ from src.models.base_model import RRCNNDecomposer
 from src.models.base_model import MultiScaleRRCNNDecomposer
 from src.losses.combined_loss import compute_combined_loss
 from src.training.prepare_data import prepare_data
+from src.losses.band_leakage_loss import save_training_run_losses, clear_training_run_losses
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -38,11 +39,13 @@ def train(cfg):
     # Define optimizer
     optimizer = Adam(model.parameters(), lr=cfg.params.learning_rate)
 
+    # Clear previous training run losses
+    clear_training_run_losses()
+
     # Training loop
     for epoch in range(cfg.params.epochs):
         model.train()
         epoch_loss = 0.0
-        #TODO check indiviual losses per epoch
 
         # Iterate over batches
         for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{cfg.params.epochs}")):
@@ -87,9 +90,13 @@ def train(cfg):
         # Log epoch loss
         print(f"Epoch {epoch + 1}/{cfg.params.epochs}, Loss: {epoch_loss / len(train_loader)}")
 
+    
     # Save the trained model
     torch.save(model.state_dict(), model_save_path)
     print(f"Model saved to {model_save_path}")
+
+    # Save training run losses
+    save_training_run_losses()
 
 if __name__ == "__main__":
     train()
