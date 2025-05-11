@@ -65,8 +65,8 @@ def find_frequency_bands(magnitude, freqs, target_bands, num_thresholds):
         if in_band:
             regions.append((freqs[start], freqs[-1]))
         if len(regions) == target_bands:
-            #sort the bands in descending order so that the first band is the highest frequency
-            regions.sort(key=lambda x: x[1], reverse=True)
+            #sort the bands in descending order so that the first band is the lowest frequency
+            regions.sort(key=lambda x: x[1], reverse=False)
             return regions
     full_band = (freqs[0], freqs[-1])
     return [full_band] * target_bands
