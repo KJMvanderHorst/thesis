@@ -18,7 +18,7 @@ class RRCNNDecomposer(nn.Module):
 
 
 class MultiScaleRRCNNDecomposer(nn.Module):
-    def __init__(self, n_components=2, conv_channels=16, kernel_sizes=(3, 5, 7)):
+    def __init__(self, n_components=2, conv_channels=16, kernel_sizes=(5, 15, 30)):
         """
         Multi-scale RRCNN Decomposer for signal decomposition.
 

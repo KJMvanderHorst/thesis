@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 class RRCNNLayer(nn.Module):
-    def __init__(self, conv_channels=16, kernel_size=5):
+    def __init__(self, conv_channels=16, kernel_size=15):
         super().__init__()
         self.conv = nn.Conv1d(1, conv_channels, kernel_size, padding=kernel_size // 2)
         self.relu = nn.ReLU()

@@ -1,15 +1,16 @@
 params:
-  batch_size: 5
-  epochs: 20
+  batch_size: 10
+  epochs: 30
   learning_rate: 1e-3
   loss_list:
-    - wavelet_coherence
+    - band_leakage
     - reconstruction
-  model_save_path: models/band_overlap.pth
+  model_save_path: models/single_scale.pth
   n_components: 2  # Number of components for RRCNNDecomposer
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0
-    band_leakage: 0.00000001
+    band_leakage: 1e-2
     true_loss: 1.0
     band_overlap: 0.000001
+    ssft_coherence: 1

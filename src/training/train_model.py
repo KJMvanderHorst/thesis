@@ -10,6 +10,7 @@ from src.models.base_model import RRCNNDecomposer
 from src.models.base_model import MultiScaleRRCNNDecomposer
 from src.losses.combined_loss import compute_combined_loss
 from src.training.prepare_data import prepare_data
+from src.losses.band_leakage_loss import save_training_run_losses, clear_training_run_losses
 
 # Training configuration
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -33,16 +34,18 @@ def train(cfg):
     train_loader, test_loader = prepare_data(cfg, data_path=data_path)
 
     # Initialize model
-    model = RRCNNDecomposer(n_components=cfg.params.n_components).to(DEVICE)
+    model = MultiScaleRRCNNDecomposer(n_components=cfg.params.n_components).to(DEVICE)
 
     # Define optimizer
     optimizer = Adam(model.parameters(), lr=cfg.params.learning_rate)
+
+    # Clear previous training run losses
+    clear_training_run_losses()
 
     # Training loop
     for epoch in range(cfg.params.epochs):
         model.train()
         epoch_loss = 0.0
-        #TODO check indiviual losses per epoch
 
         # Iterate over batches
         for batch_idx, batch in enumerate(tqdm(train_loader, desc=f"Epoch {epoch + 1}/{cfg.params.epochs}")):
@@ -69,6 +72,16 @@ def train(cfg):
             # Backward pass and optimization
             optimizer.zero_grad()
             loss.backward()
+            """for name, param in model.named_parameters():
+                if param.grad is not None:
+                    grad_mean = param.grad.abs().mean().item()
+                    print(f"Gradient for {name}: {grad_mean}")
+                    if grad_mean < 1e-6:
+                        print(f"Warning: Gradient for {name} is very small!")
+                    elif grad_mean > 1e2:
+                        print(f"Warning: Gradient for {name} is very large!")
+                else:
+                    print(f"Gradient for {name}: No gradient")"""
             optimizer.step()
 
             # Accumulate loss
@@ -77,9 +90,13 @@ def train(cfg):
         # Log epoch loss
         print(f"Epoch {epoch + 1}/{cfg.params.epochs}, Loss: {epoch_loss / len(train_loader)}")
 
+    
     # Save the trained model
     torch.save(model.state_dict(), model_save_path)
     print(f"Model saved to {model_save_path}")
+
+    # Save training run losses
+    save_training_run_losses()
 
 if __name__ == "__main__":
     train()
