@@ -5,8 +5,8 @@ params:
   loss_list:
     - band_leakage
     - reconstruction
-  model_save_path: models/single_scale.pth
-  n_components: 2  # Number of components for RRCNNDecomposer
+  model_save_path: models/multi_scale_lower_signals.pth
+  predictions_save_path: src/data/data_storage/multi_scale_lower_signals_predictions.pth
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0

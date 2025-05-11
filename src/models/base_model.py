@@ -4,7 +4,7 @@ from src.models.multi_scale_rrcnn_layer import MultiScaleRRCNNLayer
 import torch
 
 class RRCNNDecomposer(nn.Module):
-    def __init__(self, n_components=2):
+    def __init__(self, n_components=2, kernel_sizes=15):
         super().__init__()
         self.imf_extractors = nn.ModuleList([
             RRCNNLayer() for _ in range(n_components)

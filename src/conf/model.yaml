@@ -1,1 +1,9 @@
 n_components: 2  # Number of components for RRCNNDecomposer
+models:
+  - base:
+    - kernel_sizes: 15
+
+  - multi_scale:
+    - kernel_sizes: [5, 15, 30]
+
+model_type: multi_scale

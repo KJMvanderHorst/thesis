@@ -1,6 +1,6 @@
 generator:
-  fmin: 10
-  fmax: 100
+  fmin: 2
+  fmax: 20
   duration: 1.0
   signal_types: ["sine"]
   intermittence: 0.0

@@ -1,0 +1,24 @@
+program: src/training/main.py
+method: bayes  # Bayesian optimization
+metric:
+  name: train_loss
+  goal: minimize
+parameters:
+  batch_size:
+    values: [8, 16, 32]
+  epochs:
+    values: [20, 30, 40]
+  learning_rate:
+    min: 0.0001
+    max: 0.01
+  wavelet_coherence:
+    min: 0.5
+    max: 2.0
+  reconstruction:
+    min: 0.5
+    max: 2.0
+  band_leakage:
+    min: 0.001
+    max: 0.1
+  model_save_path:
+    value: models/sweep_model.pth
