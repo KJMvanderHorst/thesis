@@ -1,8 +1,14 @@
 generator:
   fmin: 2
-  fmax: 20
+  fmax: 50
   duration: 1.0
-  signal_types: ["sine"]
+  signal_types: [
+    'linear_am',
+    'sinusoidal_fm',
+    'linear_fm',
+    'sinusoidal_fm',
+    'amfm'
+  ]
   intermittence: 0.0
   overlap_factor: 0.2
   overlap_std: 0.05

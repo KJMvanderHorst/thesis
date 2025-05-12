@@ -4,7 +4,7 @@ from scipy.ndimage import gaussian_filter1d
 
 SAMPLING_RATE = 1000 #TODO : move to config will fix later
 
-def compute_bandwidths(signals, target_bands=2, sigma=0.5, num_thresholds=100):
+def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
     """
     Compute the bandwidths of a large array of signals.
 

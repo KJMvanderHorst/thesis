@@ -66,4 +66,4 @@ def run_sweep():
 if __name__ == "__main__":
     # Uncomment the function you want to run
     # main()
-    run_sweep()
+    main()

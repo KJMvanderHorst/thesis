@@ -130,7 +130,6 @@ def predict_test_set(cfg):
 
     # Prepare data
     _, test_loader = prepare_data(cfg, data_path=data_path)
-    
 
     # Initialize model
     kernel_sizes = get_kernel_sizes(cfg, cfg.model_type)
@@ -146,12 +145,13 @@ def predict_test_set(cfg):
     model.eval()
 
     predictions = []
+    ground_truths = []  # Initialize ground_truths to store the ground truth components
 
     # Predict on the test set
     with torch.no_grad():
         for batch_idx, batch in enumerate(tqdm(test_loader, desc="Predicting Test Set")):
             # Unpack the batch
-            composite_signals, _, _ = batch
+            composite_signals, components, _ = batch  # Assuming components is the ground truth
 
             # Move data to the device
             composite_signals = composite_signals.to(DEVICE)
@@ -159,16 +159,23 @@ def predict_test_set(cfg):
             # Forward pass
             predicted_components = model(composite_signals)
 
-            # Store predictions
+            # Store predictions and ground truths
             predictions.append(predicted_components.cpu().numpy())
+            ground_truths.append(components.numpy())  # Store ground truth components
 
     # Convert predictions and ground truths to numpy arrays
     predictions = np.concatenate(predictions, axis=0)
     ground_truths = np.concatenate(ground_truths, axis=0)
 
     # Save predictions to a file
-    np.save(predictions_save_path, np.concatenate(predictions, axis=0))
+    np.save(predictions_save_path, predictions)
     print(f"Predictions saved to {predictions_save_path}")
+
     # Compute evaluation metrics
-    mse = mean_squared_error(ground_truths, predictions)
+    # Flatten the arrays to ensure compatibility with mean_squared_error
+    ground_truths_flat = ground_truths.reshape(ground_truths.shape[0], -1)  # Flatten to [batch_size, n_components * signal_length]
+    predictions_flat = predictions.reshape(predictions.shape[0], -1)        # Flatten to [batch_size, n_components * signal_length]
+
+    # Compute Mean Squared Error
+    mse = mean_squared_error(ground_truths_flat, predictions_flat)
     return mse

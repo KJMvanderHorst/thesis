@@ -1,13 +1,12 @@
 import torch
 import torch.nn.functional as F
 
-def frequency_reconstruction_loss(components, bandwidth=0.1, **kwargs):
+def frequency_reconstruction_loss(components, **kwargs):
     """
-    Compute a reconstruction loss in the frequency domain using the power spectrum with a tolerance bandwidth.
+    Compute a reconstruction loss in the frequency domain using the power spectrum.
 
     Args:
         components (torch.Tensor): Decomposed components of shape [batch_size, n_components, signal_length].
-        bandwidth (float): Tolerance margin around the original power spectrum (relative to its value).
         kwargs: Additional arguments, including 'input_signal' which is the original signal.
         input_signal (torch.Tensor): The original input signal of shape [batch_size, 1, signal_length].
         This is used to compute the loss.
@@ -34,16 +33,12 @@ def frequency_reconstruction_loss(components, bandwidth=0.1, **kwargs):
     input_power = torch.abs(input_fft) ** 2  # Shape: [batch_size, 1, freq_bins]
     reconstruction_power = torch.abs(reconstruction_fft) ** 2  # Shape: [batch_size, 1, freq_bins]
 
-    # Define a tolerance range around the input power spectrum
-    lower_bound = input_power * (1 - bandwidth)  # Lower tolerance bound
-    upper_bound = input_power * (1 + bandwidth)  # Upper tolerance bound
+    # Normalize the power spectra to unit L2 norm
+    input_power = F.normalize(input_power, p=2, dim=-1)  # Normalize along the frequency dimension
+    reconstruction_power = F.normalize(reconstruction_power, p=2, dim=-1)
 
-    # Compute the penalty only for values outside the tolerance range
-    penalty = torch.where(
-        (reconstruction_power < lower_bound) | (reconstruction_power > upper_bound),
-        (reconstruction_power - input_power) ** 2,  # Penalize squared difference
-        torch.zeros_like(reconstruction_power)  # No penalty within the tolerance range
-    )
+    # Compute the squared difference between the power spectra
+    penalty = (reconstruction_power - input_power) ** 2  # Penalize squared difference
 
     # Average the penalty over the batch and frequency bins
     loss = penalty.mean(dim=-1)  # Shape: [batch_size, 1]

@@ -162,8 +162,9 @@ class SyntheticSignalGenerator:
                 cfg=self.cfg,
                 f0=bandwidth_segment[0],
                 B=bandwidth_segment[1] - bandwidth_segment[0],
-                T=duration,
-                phi=0
+                duration=duration,
+                phi=0,
+                T=duration
             ),
             'sinusoidal_fm': lambda: SinusoidalFMSignal(
                 cfg=self.cfg,
@@ -176,6 +177,7 @@ class SyntheticSignalGenerator:
             'amfm': lambda: AMFMSignal(
                 cfg=self.cfg,
                 am_signal=LinearAMSignal(
+                    cfg=self.cfg,
                     b=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     a=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     fam=freq,
@@ -186,7 +188,8 @@ class SyntheticSignalGenerator:
                     cfg=self.cfg,
                     f0=bandwidth_segment[0],
                     B=bandwidth_segment[1] - bandwidth_segment[0],
-                    T=duration,
+                    duration=duration,
+                    T = duration,
                     phi=0
                 )
             ),

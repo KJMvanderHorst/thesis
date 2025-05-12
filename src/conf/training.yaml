@@ -1,12 +1,13 @@
 params:
   batch_size: 10
-  epochs: 30
+  epochs: 20
   learning_rate: 1e-3
   loss_list:
-    - band_leakage
     - reconstruction
-  model_save_path: models/multi_scale_lower_signals.pth
-  predictions_save_path: src/data/data_storage/multi_scale_lower_signals_predictions.pth
+    - ssft_coherence
+    - frequency_reconstruction
+  model_save_path: models/nonstationary.pth
+  predictions_save_path: src/data/data_storage/nonstationary_predictions
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0
@@ -14,4 +15,4 @@ params:
     true_loss: 1.0
     band_overlap: 0.000001
     ssft_coherence: 1
-    frequency_reconstruction: 1
+    frequency_reconstruction: 100
