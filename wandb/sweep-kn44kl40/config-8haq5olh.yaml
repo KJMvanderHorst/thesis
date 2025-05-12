@@ -1,0 +1,16 @@
+wandb_version: 1
+
+band_leakage:
+  value: 0.008371810813218517
+batch_size:
+  value: 8
+epochs:
+  value: 40
+learning_rate:
+  value: 0.0027858127329870295
+model_save_path:
+  value: models/sweep_model.pth
+reconstruction:
+  value: 1.27080816756645
+wavelet_coherence:
+  value: 1.7683455162077957

@@ -123,13 +123,14 @@ def predict_test_set(cfg):
     # Define paths
     data_path = os.path.join(project_root, cfg.data_path)
     model_save_path = os.path.join(project_root, cfg.params.model_save_path)
-    predictions_save_path = os.path.join(project_root, cfg.predictions_save_path)
+    predictions_save_path = os.path.join(project_root, cfg.params.predictions_save_path)
 
     # Ensure the predictions save directory exists
     os.makedirs(os.path.dirname(predictions_save_path), exist_ok=True)
 
     # Prepare data
     _, test_loader = prepare_data(cfg, data_path=data_path)
+    
 
     # Initialize model
     kernel_sizes = get_kernel_sizes(cfg, cfg.model_type)

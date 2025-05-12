@@ -14,3 +14,4 @@ params:
     true_loss: 1.0
     band_overlap: 0.000001
     ssft_coherence: 1
+    frequency_reconstruction: 1

@@ -1,0 +1,43 @@
+_wandb:
+    value:
+        cli_version: 0.19.9
+        m: []
+        python_version: 3.12.7
+        t:
+            "1":
+                - 1
+                - 5
+                - 50
+                - 53
+                - 55
+            "2":
+                - 1
+                - 5
+                - 50
+                - 53
+                - 55
+            "3":
+                - 2
+                - 14
+                - 23
+                - 55
+            "4": 3.12.7
+            "5": 0.19.9
+            "8":
+                - 5
+            "12": 0.19.9
+            "13": darwin-arm64
+band_leakage:
+    value: 0.024850090876743672
+batch_size:
+    value: 16
+epochs:
+    value: 20
+learning_rate:
+    value: 0.008597873974198336
+model_save_path:
+    value: models/sweep_model.pth
+reconstruction:
+    value: 1.1892390330422868
+wavelet_coherence:
+    value: 1.839535114927141

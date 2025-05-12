@@ -4,6 +4,7 @@ from src.losses.band_leakage_loss import band_leakage_loss
 from src.losses.true_loss import true_loss
 from src.losses.band_overlap_loss import band_overlap_loss
 from src.losses.ssft_coherence import fft_coherence_loss
+from src.losses.frequency_reconstruction import frequency_reconstruction_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
     """
@@ -23,6 +24,7 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
         "band_leakage": band_leakage_loss,
         "band_overlap": band_overlap_loss,
         "ssft_coherence": fft_coherence_loss,
+        "frequency_reconstruction": frequency_reconstruction_loss,
         "true_loss": true_loss
     }
 
