@@ -6,6 +6,7 @@ params:
     - reconstruction
     - frequency_reconstruction
     - ssft_coherence
+    - band_leakage
     - energy_ordering
   model_save_path: models/nonstationary_reconstruction_fr_energy_ordering.pth
   predictions_save_path: src/data/data_storage/nonstationary_reconstruction_fr_energy_ordering_predictions

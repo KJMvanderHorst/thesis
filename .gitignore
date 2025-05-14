@@ -92,6 +92,7 @@ target/
 *.csv
 *.json
 *.npz
+*.npy
 
 # Ignore trained model files
 *.h5
