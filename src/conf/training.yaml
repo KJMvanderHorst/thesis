@@ -5,9 +5,10 @@ params:
   loss_list:
     - reconstruction
     - frequency_reconstruction
-    - band_leakage
-  model_save_path: models/nonstationary_reconstruction_fr.pth
-  predictions_save_path: src/data/data_storage/nonstationary_reconstruction_fr_predictions
+    - ssft_coherence
+    - energy_ordering
+  model_save_path: models/nonstationary_reconstruction_fr_energy_ordering.pth
+  predictions_save_path: src/data/data_storage/nonstationary_reconstruction_fr_energy_ordering_predictions
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0
@@ -16,3 +17,4 @@ params:
     band_overlap: 0.000001
     ssft_coherence: 1
     frequency_reconstruction: 100
+    energy_ordering: 1

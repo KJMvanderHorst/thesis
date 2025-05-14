@@ -49,7 +49,7 @@ def find_frequency_bands(magnitude, freqs, target_bands, num_thresholds):
         list: A list of tuples [(fmin, fmax), ...] representing the detected bands.
         It returns the bands in descending order of frequency.
     """
-    thresholds = np.linspace(np.min(magnitude), np.max(magnitude), num_thresholds)[::-1]
+    thresholds = np.linspace(np.min(magnitude), np.max(magnitude), num_thresholds) # ascending order, important!!!
     for thresh in thresholds:
         mask = magnitude > thresh
         regions = []

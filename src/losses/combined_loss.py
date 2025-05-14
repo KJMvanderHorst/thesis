@@ -3,8 +3,9 @@ from src.losses.reconstruction_loss import reconstruction_loss
 from src.losses.band_leakage_loss import band_leakage_loss
 from src.losses.true_loss import true_loss
 from src.losses.band_overlap_loss import band_overlap_loss
-from src.losses.ssft_coherence import fft_coherence_loss
+from src.losses.ssft_coherence import ssft_coherence_loss
 from src.losses.frequency_reconstruction import frequency_reconstruction_loss
+from src.losses.energy_ordering_loss import energy_ordering_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
     """
@@ -23,7 +24,8 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
         "reconstruction": reconstruction_loss,
         "band_leakage": band_leakage_loss,
         "band_overlap": band_overlap_loss,
-        "ssft_coherence": fft_coherence_loss,
+        "ssft_coherence": ssft_coherence_loss,
+        "energy_ordering": energy_ordering_loss,
         "frequency_reconstruction": frequency_reconstruction_loss,
         "true_loss": true_loss
     }
