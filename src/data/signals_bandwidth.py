@@ -19,7 +19,10 @@ def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
               [(fmin1, fmax1), (fmin2, fmax2), ...] representing the detected bands.
     """
 
-    ### TODO: check if the bandwiths are wihtin the max and min frequencies of the signal. if not then return the full band twice
+    # Check if the bandwidths are within the min and max frequencies of the signal
+    min_freq = 10
+    max_freq = 50
+
 
     bandwidths = []
 
@@ -34,6 +37,12 @@ def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
 
         # Step 3: Detect frequency bands
         bands = find_frequency_bands(smoothed_magnitude, freqs, target_bands, num_thresholds)
+        
+        # Step 4: Check if the first band exceeds the max frequency
+        if bands[0][1] > max_freq:
+            full_band = (freqs[0], freqs[-1])
+            bands = [full_band] * target_bands
+
         bandwidths.append(bands)
     return bandwidths
 
