@@ -139,6 +139,12 @@ class SyntheticSignalGenerator:
         """
         freq = np.random.uniform(bandwidth_segment[0], bandwidth_segment[1])
         starting_freq = np.random.uniform(0, 2 * np.pi)
+        freq1, freq2 = np.random.uniform(bandwidth_segment[0], bandwidth_segment[1], 2)
+        low_freq = min(freq1, freq2)
+        high_freq = max(freq1, freq2)
+
+        am_signal_type=np.random.choice(['linear', 'sinusoidal'])
+        fm_signal_type=np.random.choice(['linear', 'sinusoidal'])
 
         # Define a dictionary mapping signal types to their creation logic
         signal_generators = {
@@ -156,12 +162,14 @@ class SyntheticSignalGenerator:
                 phi_s=np.random.uniform(0, 2 * np.pi),
                 fam=freq,
                 phi=starting_freq,
-                duration=duration
+                duration=duration,
+                b=np.random.uniform(self.min_amplitude, self.max_amplitude),
+                a=np.random.uniform(self.min_amplitude, self.max_amplitude)
             ),
             'linear_fm': lambda: LinearFMSignal(
                 cfg=self.cfg,
-                f0=bandwidth_segment[0],
-                B=bandwidth_segment[1] - bandwidth_segment[0],
+                f0=low_freq,
+                B=high_freq - low_freq,
                 duration=duration,
                 phi=0,
                 T=duration
@@ -169,28 +177,46 @@ class SyntheticSignalGenerator:
             'sinusoidal_fm': lambda: SinusoidalFMSignal(
                 cfg=self.cfg,
                 fc=freq,
-                fd=np.random.uniform(0, self.max_frequency_deviation * freq),
+                fd=np.random.uniform(0, self.max_frequency_deviation*freq),
                 fm=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
                 phi=starting_freq,
                 duration=duration
             ),
             'amfm': lambda: AMFMSignal(
-                cfg=self.cfg,
-                am_signal=LinearAMSignal(
+            cfg=self.cfg,
+            # Dynamically select AM and FM signal types
+            am_type=am_signal_type,
+            am_signal=LinearAMSignal(
                     cfg=self.cfg,
                     b=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     a=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     fam=freq,
                     phi=starting_freq,
                     duration=duration
+                ) if am_signal_type == 'linear' else SinusoidalAMSignal(
+                    cfg=self.cfg,
+                    fs=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
+                    phi_s=np.random.uniform(0, 2 * np.pi),
+                    fam=freq,
+                    phi=starting_freq,
+                    duration=duration,
+                    b=np.random.uniform(self.min_amplitude, self.max_amplitude),
+                    a=np.random.uniform(self.min_amplitude, self.max_amplitude)
                 ),
                 fm_signal=LinearFMSignal(
                     cfg=self.cfg,
-                    f0=bandwidth_segment[0],
-                    B=bandwidth_segment[1] - bandwidth_segment[0],
+                    f0=low_freq,
+                    B=high_freq - low_freq,
                     duration=duration,
-                    T = duration,
-                    phi=0
+                    phi=0,
+                    T=duration
+                ) if fm_signal_type == 'linear' else SinusoidalFMSignal(
+                    cfg=self.cfg,
+                    fc=freq,
+                    fd=np.random.uniform(0, self.max_frequency_deviation * freq),
+                    fm=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
+                    phi=starting_freq,
+                    duration=duration
                 )
             ),
             'sine': lambda: SineSignal(

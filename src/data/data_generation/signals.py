@@ -96,7 +96,7 @@ class SinusoidalAMSignal(BaseSignal):
         duration (float): Duration of the signal (seconds).
     """
 
-    def __init__(self, cfg, fs, phi_s, fam, duration, phi):
+    def __init__(self, cfg, fs, phi_s, fam, duration, phi, a, b):
         """
         Initialize the SinusoidalAMSignal.
 
@@ -107,11 +107,15 @@ class SinusoidalAMSignal(BaseSignal):
             fam (float): Frequency of the carrier signal (Hz).
             duration (float): Duration of the signal (seconds).
             phi (float): Phase of the carrier signal (radians).
+            b (float): Maximum amplitude.
+            a (float): Minimum amplitude.
         """
         super().__init__(cfg, duration, phi)
         self.fs = fs
         self.phi_s = phi_s
         self.fam = fam
+        self.a = a
+        self.b = b
 
     def generate(self):
         """
@@ -120,8 +124,10 @@ class SinusoidalAMSignal(BaseSignal):
         Returns:
             np.ndarray: The generated signal.
         """
+
+        mod_index = (self.b - self.a) / (self.b + self.a)
         t = np.linspace(0, self.duration, int(self.duration * self.sampling_rate), endpoint=False)
-        A_t = np.sin(2 * np.pi * self.fs * t + self.phi_s)
+        A_t = (1 + mod_index * np.sin(2 * np.pi * self.fs * t + self.phi_s))* self.a  # Envelope is always ≥ 0
         return A_t * np.sin(2 * np.pi * self.fam * t + self.phi)
 
 
@@ -205,7 +211,7 @@ class SinusoidalFMSignal(BaseSignal):
         """
         t = np.linspace(0, self.duration, int(self.duration * self.sampling_rate), endpoint=False)
         A = np.random.uniform(self.min_amplitude, self.max_amplitude)
-        return A * np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t + self.phi))
+        return A * np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t))
 
 
 class AMFMSignal(BaseSignal):
@@ -213,22 +219,25 @@ class AMFMSignal(BaseSignal):
     Combines an amplitude-modulated (AM) signal and a frequency-modulated (FM) signal.
 
     Attributes:
-        am_signal (BaseSignal): The AM signal object.
         fm_signal (BaseSignal): The FM signal object.
+        am_signal (BaseSignal): The AM signal object.
     """
 
-    def __init__(self, cfg, am_signal, fm_signal):
+    def __init__(self, cfg,  am_type, fm_signal, am_signal):
         """
         Initialize the AMFMSignal.
 
         Args:
             cfg (DictConfig): Configuration object containing constants.
-            am_signal (BaseSignal): The AM signal object.
             fm_signal (BaseSignal): The FM signal object.
+            am_signal (BaseSignal): The AM signal object.
+            am_type (str): Type of AM signal ('linear' or 'sinusoidal').
+
         """
-        super().__init__(cfg, am_signal.duration)
-        self.am_signal = am_signal
+        super().__init__(cfg, fm_signal.duration)
+        self.am_type = am_type
         self.fm_signal = fm_signal
+        self.am_signal = am_signal
 
     def generate(self):
         """
@@ -237,9 +246,20 @@ class AMFMSignal(BaseSignal):
         Returns:
             np.ndarray: The generated signal.
         """
-        A_t = self.am_signal.generate()
-        S_fm = self.fm_signal.generate()
-        return A_t * S_fm
+        t = np.linspace(0, self.duration, int(self.duration * self.sampling_rate), endpoint=False)
+
+        #generate the AM envelope
+        if self.am_type == 'sinusoidal':
+            mod_index = (self.am_signal.b - self.am_signal.a) / (self.am_signal.b + self.am_signal.a)
+            A_t = (1 + mod_index * np.sin(2 * np.pi * self.am_signal.fs * t + self.am_signal.phi_s))* self.am_signal.a  # Envelope is always ≥ 0
+        elif self.am_type == 'linear':
+            A_t = self.am_signal.a / self.am_signal.b * t + self.am_signal.a
+        else:
+            raise ValueError("Invalid AM type. Choose 'linear' or 'sinusoidal'.")
+        
+        #generate the FM signal
+        fm_signal = self.fm_signal.generate()
+        return A_t * fm_signal
 
 
 class SineSignal(BaseSignal):

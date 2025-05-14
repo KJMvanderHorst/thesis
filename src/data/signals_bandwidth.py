@@ -19,8 +19,10 @@ def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
               [(fmin1, fmax1), (fmin2, fmax2), ...] representing the detected bands.
     """
 
+    ### TODO: check if the bandwiths are wihtin the max and min frequencies of the signal. if not then return the full band twice
+
     bandwidths = []
-    sum = 0
+
     for signal in signals:
         # Step 1: Compute FFT
         n = len(signal)
@@ -49,6 +51,9 @@ def find_frequency_bands(magnitude, freqs, target_bands, num_thresholds):
         list: A list of tuples [(fmin, fmax), ...] representing the detected bands.
         It returns the bands in descending order of frequency.
     """
+    # Ignore the DC component (0 Hz)
+    magnitude = magnitude[1:]  # Exclude the first bin (DC component)
+    freqs = freqs[1:]          # Exclude the corresponding frequency (0 Hz)
     thresholds = np.linspace(np.min(magnitude), np.max(magnitude), num_thresholds) # ascending order, important!!!
     for thresh in thresholds:
         mask = magnitude > thresh
