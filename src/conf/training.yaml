@@ -1,5 +1,5 @@
 params:
-  batch_size: 10
+  batch_size: 64
   epochs: 20
   learning_rate: 1e-3
   loss_list:
@@ -8,8 +8,8 @@ params:
     - ssft_coherence
     - band_leakage
     - energy_ordering
-  model_save_path: models/nonstationary_reconstruction_fr_energy_ordering.pth
-  predictions_save_path: src/data/data_storage/nonstationary_reconstruction_fr_energy_ordering_predictions
+  model_save_path: models/nonstationary_reconstruction_fr_energy_ordering_bands.pth
+  predictions_save_path: src/data/data_storage/nonstationary_reconstruction_fr_energy_ordering_bands_predictions
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 1.0
