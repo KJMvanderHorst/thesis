@@ -26,6 +26,6 @@ constants:
 
 dataset:
   num_signals: 10000
-  num_components: 2
+  num_components: 3
 
 output_folder: src/data/data_storage

@@ -6,6 +6,8 @@ from src.losses.band_overlap_loss import band_overlap_loss
 from src.losses.ssft_coherence import ssft_coherence_loss
 from src.losses.frequency_reconstruction import frequency_reconstruction_loss
 from src.losses.energy_ordering_loss import energy_ordering_loss
+from src.losses.spectral_entropy_loss import spectral_entropy_loss
+from src.losses.laplacian_loss import laplacian_loss
 
 def compute_combined_loss(predicted, loss_list, **kwargs):
     """
@@ -27,6 +29,8 @@ def compute_combined_loss(predicted, loss_list, **kwargs):
         "ssft_coherence": ssft_coherence_loss,
         "energy_ordering": energy_ordering_loss,
         "frequency_reconstruction": frequency_reconstruction_loss,
+        "spectral_entropy": spectral_entropy_loss,
+        "laplacian": laplacian_loss,
         "true_loss": true_loss
     }
 

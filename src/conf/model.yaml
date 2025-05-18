@@ -1,4 +1,4 @@
-n_components: 2  # Number of components for RRCNNDecomposer
+n_components: 3  # Number of components for RRCNNDecomposer
 models:
   - base:
     - kernel_sizes: 15
