@@ -1,14 +1,12 @@
 params:
   batch_size: 128
-  epochs: 2
+  epochs: 10
   num_workers: 4
   learning_rate: 1e-3
   loss_list:
-    - reconstruction
     - frequency_reconstruction
     - energy_ordering
     - spectral_entropy
-    - laplacian
     - ssft_coherence
   predictions_save_path: src/data/testing_batches
   loss_weights:

@@ -1,24 +1,28 @@
 program: src/training/train_model.py
-method: bayes  # Bayesian optimization
+command:
+  - ${env}
+  - python
+  - src/training/train_model.py
+  - "--"
+project: thesis-signal-decomposition
+entity: kjm-vanderhorst-maastricht-university
+method: bayes
+count: 20
 metric:
   name: train_loss
   goal: minimize
 parameters:
-  batch_size:
+  params.batch_size:
     values: [8, 16, 32]
-  epochs:
+  params.epochs:
     values: [20, 30, 40]
-  learning_rate:
-    min: 0.0001
-    max: 0.01
-  wavelet_coherence:
+  params.ssft_coherence:
     min: 0.5
     max: 2.0
-  reconstruction:
+  params.frequency_reconstruction:
     min: 0.5
     max: 2.0
-  band_leakage:
-    min: 0.001
-    max: 0.1
-  model_save_path:
-    value: models/sweep_model.pth
+  params.spectral_entropy:
+    min: 0.5
+    max: 2.0
+

@@ -12,6 +12,8 @@ from tqdm import tqdm
 from omegaconf import OmegaConf, DictConfig
 from sklearn.metrics import mean_squared_error
 
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+
 from src.models.base_model import RRCNNDecomposer
 from src.models.base_model import MultiScaleRRCNNDecomposer
 from src.losses.combined_loss import compute_combined_loss
@@ -215,19 +217,9 @@ def train(cfg):
     # Define paths
     data_path = os.path.join(project_root, cfg.data_path)
     
-    # Save the trained model with the run name in src/models/
-    models_dir = os.path.join(project_root, "src", "models")
+    # Save the trained model with the run id in src/models/
+    models_dir = os.path.join(project_root , "models")
     os.makedirs(models_dir, exist_ok=True)
-    if OmegaConf.select(cfg, "enabled") and wandb.run is not None:
-        run_name = wandb.run.name
-    else:
-        # Fallback: use experiment name or a generic name
-        run_name = getattr(cfg.run, "experiment_name", "final_model")
-    model_save_path = os.path.join(models_dir, f"{run_name}.pth")
-
-
-    # Ensure the model save directory exists
-    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
 
     # Setup WandB
     if OmegaConf.select(cfg, "enabled"):
@@ -239,6 +231,17 @@ def train(cfg):
             tags=cfg.tags,
             group=cfg.group
         )
+
+    # Now wandb.run is available if enabled
+    if OmegaConf.select(cfg, "enabled") and wandb.run is not None:
+        unique_id = wandb.run.id  # Use the unique wandb run id
+    else:
+        unique_id = getattr(cfg.run, "experiment_name", "final_model")
+
+    model_save_path = os.path.join(models_dir, f"{unique_id}.pth")
+
+    # Ensure the model save directory exists
+    os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
 
     # Prepare data
     train_loader, test_loader = prepare_data(cfg, data_path=data_path)
@@ -252,9 +255,6 @@ def train(cfg):
 
     # Define optimizer
     optimizer = Adam(model.parameters(), lr=cfg.params.learning_rate)
-
-    # Clear previous training run losses
-    clear_training_run_losses()
 
     # Training loop
     for epoch in range(cfg.params.epochs):
@@ -283,9 +283,6 @@ def train(cfg):
 
     torch.save(model.state_dict(), model_save_path)
     print(f"Final model saved to {model_save_path}")
-
-    # Save training run losses
-    save_training_run_losses()
 
 if __name__ == "__main__":
     train()
