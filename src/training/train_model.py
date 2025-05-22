@@ -19,7 +19,7 @@ from src.training.prepare_data import prepare_data
 from src.losses.band_leakage_loss import save_training_run_losses, clear_training_run_losses
 
 # Training configuration
-DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+DEVICE = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
 
 model_dict = {
     "base": RRCNNDecomposer,
