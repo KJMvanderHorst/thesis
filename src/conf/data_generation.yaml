@@ -1,4 +1,5 @@
 generator:
+
   fmin: 2
   fmax: 50
   duration: 1.0
@@ -17,15 +18,18 @@ generator:
 constants:
   min_modulation_frequency: 1.0 # Hz of the frequency of the modulation
   max_modulation_frequency: 10.0 # Hz of the frequency of the modulation
+
   min_amplitude: 0.5
   max_amplitude: 1.5
   intermittence_lower_bound: 0.1
   intermittence_upper_bound: 0.9
   max_frequency_deviation: 0.5 #20 percent of the carrier frequency
+
   sampling_rate: 1000
 
 dataset:
   num_signals: 10000
   num_components: 3
+
 
 output_folder: src/data/data_storage

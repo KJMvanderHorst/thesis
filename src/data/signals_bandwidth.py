@@ -4,7 +4,9 @@ from scipy.ndimage import gaussian_filter1d
 
 SAMPLING_RATE = 1000 #TODO : move to config will fix later
 
+
 def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
+
     """
     Compute the bandwidths of a large array of signals.
 
@@ -19,12 +21,14 @@ def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
               [(fmin1, fmax1), (fmin2, fmax2), ...] representing the detected bands.
     """
 
+
     # Check if the bandwidths are within the min and max frequencies of the signal
     min_freq = 10
     max_freq = 50
 
 
     bandwidths = []
+
 
     for signal in signals:
         # Step 1: Compute FFT
@@ -37,11 +41,13 @@ def compute_bandwidths(signals, target_bands=2, sigma=2, num_thresholds=100):
 
         # Step 3: Detect frequency bands
         bands = find_frequency_bands(smoothed_magnitude, freqs, target_bands, num_thresholds)
+
         
         # Step 4: Check if the first band exceeds the max frequency
         if bands[0][1] > max_freq:
             full_band = (freqs[0], freqs[-1])
             bands = [full_band] * target_bands
+
 
         bandwidths.append(bands)
     return bandwidths
@@ -60,10 +66,12 @@ def find_frequency_bands(magnitude, freqs, target_bands, num_thresholds):
         list: A list of tuples [(fmin, fmax), ...] representing the detected bands.
         It returns the bands in descending order of frequency.
     """
+
     # Ignore the DC component (0 Hz)
     magnitude = magnitude[1:]  # Exclude the first bin (DC component)
     freqs = freqs[1:]          # Exclude the corresponding frequency (0 Hz)
     thresholds = np.linspace(np.min(magnitude), np.max(magnitude), num_thresholds) # ascending order, important!!!
+
     for thresh in thresholds:
         mask = magnitude > thresh
         regions = []

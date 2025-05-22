@@ -146,6 +146,7 @@ class SyntheticSignalGenerator:
         am_signal_type=np.random.choice(['linear', 'sinusoidal'])
         fm_signal_type=np.random.choice(['linear', 'sinusoidal'])
 
+
         # Define a dictionary mapping signal types to their creation logic
         signal_generators = {
             'linear_am': lambda: LinearAMSignal(
@@ -173,11 +174,14 @@ class SyntheticSignalGenerator:
                 duration=duration,
                 phi=0,
                 T=duration
+
             ),
             'sinusoidal_fm': lambda: SinusoidalFMSignal(
                 cfg=self.cfg,
                 fc=freq,
+
                 fd=np.random.uniform(0, self.max_frequency_deviation*freq),
+
                 fm=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
                 phi=starting_freq,
                 duration=duration
@@ -188,11 +192,13 @@ class SyntheticSignalGenerator:
             am_type=am_signal_type,
             am_signal=LinearAMSignal(
                     cfg=self.cfg,
+
                     b=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     a=np.random.uniform(self.min_amplitude, self.max_amplitude),
                     fam=freq,
                     phi=starting_freq,
                     duration=duration
+
                 ) if am_signal_type == 'linear' else SinusoidalAMSignal(
                     cfg=self.cfg,
                     fs=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
@@ -217,6 +223,7 @@ class SyntheticSignalGenerator:
                     fm=np.random.uniform(self.min_modulation_frequency, self.max_modulation_frequency),
                     phi=starting_freq,
                     duration=duration
+
                 )
             ),
             'sine': lambda: SineSignal(

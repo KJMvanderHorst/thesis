@@ -1,4 +1,5 @@
 data_path: src/data/data_storage/composite_signals_20250518T172140.npz
 include_frequency_bands: False
 test_size: 0.2
+
 random_state: 42

@@ -94,6 +94,7 @@ target/
 *.npz
 *.npy
 
+
 # Ignore trained model files
 *.h5
 *.pt

@@ -3,6 +3,15 @@ defaults:
   - training
   - model
   - dataset
+  - wandb
+
+run:
+  exp_num: "00"
+  name: "baseline"
+  comment: ""
+  experiment_name: ${run.exp_num}_${run.name}
+  save_checkpoint: true
+
 
 hydra:
   job_logging:

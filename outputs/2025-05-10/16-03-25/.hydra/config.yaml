@@ -1,0 +1,22 @@
+generator:
+  fmin: 10
+  fmax: 100
+  duration: 1.0
+  signal_types:
+  - sine
+  intermittence: 0.0
+  overlap_factor: 0.2
+  overlap_std: 0.05
+constants:
+  min_modulation_frequency: 0.1
+  max_modulation_frequency: 10.0
+  min_amplitude: 0.5
+  max_amplitude: 1.5
+  intermittence_lower_bound: 0.1
+  intermittence_upper_bound: 0.9
+  max_frequency_deviation: 5.0
+  sampling_rate: 1000
+dataset:
+  num_signals: 10000
+  num_components: 2
+output_folder: src/data/data_storage

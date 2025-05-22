@@ -25,4 +25,5 @@ def prepare_data(cfg, data_path):
     # Create DataLoaders
     train_loader = DataLoader(train_dataset, batch_size=cfg.params.batch_size, shuffle=True, num_workers=cfg.params.num_workers)
     test_loader = DataLoader(test_dataset, batch_size=cfg.params.batch_size, shuffle=False, num_workers=cfg.params.num_workers)
+
     return train_loader, test_loader

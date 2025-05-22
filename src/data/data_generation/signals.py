@@ -97,6 +97,7 @@ class SinusoidalAMSignal(BaseSignal):
     """
 
     def __init__(self, cfg, fs, phi_s, fam, duration, phi, a, b):
+
         """
         Initialize the SinusoidalAMSignal.
 
@@ -109,13 +110,16 @@ class SinusoidalAMSignal(BaseSignal):
             phi (float): Phase of the carrier signal (radians).
             b (float): Maximum amplitude.
             a (float): Minimum amplitude.
+
         """
         super().__init__(cfg, duration, phi)
         self.fs = fs
         self.phi_s = phi_s
         self.fam = fam
+
         self.a = a
         self.b = b
+
 
     def generate(self):
         """
@@ -211,6 +215,7 @@ class SinusoidalFMSignal(BaseSignal):
         """
         t = np.linspace(0, self.duration, int(self.duration * self.sampling_rate), endpoint=False)
         A = np.random.uniform(self.min_amplitude, self.max_amplitude)
+
         return A * np.sin(2 * np.pi * self.fc * t + self.fd / self.fm * np.sin(2 * np.pi * self.fm * t))
 
 
@@ -219,11 +224,13 @@ class AMFMSignal(BaseSignal):
     Combines an amplitude-modulated (AM) signal and a frequency-modulated (FM) signal.
 
     Attributes:
+
         fm_signal (BaseSignal): The FM signal object.
         am_signal (BaseSignal): The AM signal object.
     """
 
     def __init__(self, cfg,  am_type, fm_signal, am_signal):
+
         """
         Initialize the AMFMSignal.
 
@@ -236,6 +243,7 @@ class AMFMSignal(BaseSignal):
         """
         super().__init__(cfg, fm_signal.duration)
         self.am_type = am_type
+
         self.fm_signal = fm_signal
         self.am_signal = am_signal
 
@@ -260,6 +268,7 @@ class AMFMSignal(BaseSignal):
         #generate the FM signal
         fm_signal = self.fm_signal.generate()
         return A_t * fm_signal
+
 
 
 class SineSignal(BaseSignal):

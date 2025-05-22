@@ -7,3 +7,4 @@ models:
     - kernel_sizes: [5, 15, 30]
 
 model_type: multi_scale
+
