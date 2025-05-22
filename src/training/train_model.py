@@ -54,15 +54,26 @@ class AverageMeterDict:
     def average(self):
         return {k: meter.average() for k, meter in self.meters.items()}
 
-def save_checkpoint(model: torch.nn.Module, name: str, checkpoint_dir: str, epoch: int, metrics: dict):
-    checkpoint_path = os.path.join(checkpoint_dir, f"checkpoint_epoch_{epoch + 1}.pth")
+import os
+
+def save_checkpoint(model: torch.nn.Module, name: str, model_save_path: str, epoch: int, metrics: dict):
+    # Get the model name without extension
+    model_name = os.path.splitext(os.path.basename(model_save_path))[0]
+    # Get the parent directory (e.g., .../models)
+    parent_dir = os.path.dirname(model_save_path)
+    # Create the checkpoints/model_name directory inside the parent directory
+    save_dir = os.path.join(parent_dir, "checkpoint", model_name)
+    os.makedirs(save_dir, exist_ok=True)
+    # Save the checkpoint in that directory
+    checkpoint_path = os.path.join(save_dir, f"checkpoint_epoch_{epoch + 1}.pth")
+    print(f"Saving checkpoint to {checkpoint_path}")
     torch.save(model.state_dict(), checkpoint_path)
     print(f"Checkpoint saved to {checkpoint_path}")
 
     artifact = wandb.Artifact(
-        name = name,
-        type = "model",
-        metadata = {
+        name=name,
+        type="model",
+        metadata={
             "epoch": epoch + 1,
             **metrics
         }
@@ -209,13 +220,14 @@ def train(cfg):
     os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
 
     # Setup WandB
-    if OmegaConf.select(cfg, "wandb.enabled"):
+    if OmegaConf.select(cfg, "enabled"):
+        print("WandB is enabled. Initializing...")
         wandb.init(
-            project=cfg.wandb.project,
-            name=cfg.run.exp_name,
+            project=cfg.project,
+            name=cfg.run.experiment_name,
             config=OmegaConf.to_container(cfg, resolve=True),
-            tags=cfg.wandb.tags,
-            group=cfg.wandb.group
+            tags=cfg.tags,
+            group=cfg.group
         )
 
     # Prepare data
@@ -237,14 +249,13 @@ def train(cfg):
     # Training loop
     for epoch in range(cfg.params.epochs):
         model.train()
-        epoch_loss = 0.0
 
         # Run training loop
         train_results = train_loop(model, train_loader, optimizer, cfg, epoch)
         test_results = test_loop(model, test_loader, cfg)
 
         # Log and save checkpoint using wandb
-        if OmegaConf.select(cfg, "wandb.enabled"):
+        if OmegaConf.select(cfg, "enabled"):
             # Log metrics
             log_to_wandb(train_results, test_results, epoch)
 
@@ -259,10 +270,6 @@ def train(cfg):
                     **test_results
                 }
             )
-
-        # Log epoch loss
-        print(f"Epoch {epoch + 1}/{cfg.params.epochs}, Loss: {epoch_loss / len(train_loader)}")
-
     
     # Save the trained model
     torch.save(model.state_dict(), model_save_path)

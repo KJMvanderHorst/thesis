@@ -17,10 +17,11 @@ class SignalDataset(Dataset):
         if not os.path.exists(dataset_path):
             raise FileNotFoundError(f"Dataset file not found at {dataset_path}")
 
-        # Load the dataset
-        self.data = np.load(dataset_path)
-        self.composite_signals = torch.tensor(self.data["composite_signals"]).float()  # Shape: [num_samples, time_steps]
-        self.components = torch.tensor(self.data["components"]).float()  # Shape: [num_samples, time_steps, num_components]
+        # Load the dataset and do NOT keep the npz file object as an attribute
+        with np.load(dataset_path) as data:
+            self.composite_signals = torch.tensor(data["composite_signals"]).float()  # Shape: [num_samples, time_steps]
+            self.components = torch.tensor(data["components"]).float()  # Shape: [num_samples, time_steps, num_components]
+            
         # Handle frequency bands
         self.frequency_bands = None
         if include_frequency_bands:

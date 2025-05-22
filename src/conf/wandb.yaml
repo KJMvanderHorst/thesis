@@ -1,7 +1,8 @@
 enabled: true
-project: # Put your project name here
-entity: # Put your entity name here
+project: thesis-signal-decomposition
+entity: kjm-vanderhorst-maastricht-university
 tags: ["hydra", "experiment"]
 group: null
 log_artifacts: true
 notes: ${run.comment}
+exp_name: ${run.experiment_name}
