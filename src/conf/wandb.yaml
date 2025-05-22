@@ -1,0 +1,7 @@
+enabled: true
+project: # Put your project name here
+entity: # Put your entity name here
+tags: ["hydra", "experiment"]
+group: null
+log_artifacts: true
+notes: ${run.comment}
