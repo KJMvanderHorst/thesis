@@ -23,7 +23,6 @@ def prepare_data(cfg, data_path):
     test_dataset = torch.utils.data.Subset(full_dataset, test_indices)
 
     # Create DataLoaders
-    train_loader = DataLoader(train_dataset, batch_size=cfg.params.batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=cfg.params.batch_size, shuffle=False)
-
+    train_loader = DataLoader(train_dataset, batch_size=cfg.params.batch_size, shuffle=True, num_workers=cfg.params.num_workers)
+    test_loader = DataLoader(test_dataset, batch_size=cfg.params.batch_size, shuffle=False, num_workers=cfg.params.num_workers)
     return train_loader, test_loader

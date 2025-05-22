@@ -1,6 +1,7 @@
 params:
-  batch_size: 10
-  epochs: 20
+  batch_size: 100
+  epochs: 3
+  num_workers: 4
   learning_rate: 1e-3
   loss_list:
     - reconstruction
@@ -9,8 +10,8 @@ params:
     - spectral_entropy
     - laplacian
     - ssft_coherence
-  model_save_path: models/nonstationary_model_3_signals.pth
-  predictions_save_path: src/data/data_storage/nonstationary_model_3_signals
+  model_save_path: models/testing_batches.pth
+  predictions_save_path: src/data/testing_batches
   loss_weights:
     wavelet_coherence: 1.0
     reconstruction: 2.5

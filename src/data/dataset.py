@@ -44,14 +44,10 @@ class SignalDataset(Dataset):
         return len(self.composite_signals)
 
     def __getitem__(self, idx):
-        composite_signal = self.composite_signals[idx]
+        composite_signal = self.composite_signals[idx].unsqueeze(0)  # [1, signal_length]
         components = self.components[idx]
         if self.frequency_bands is not None:
             frequency_bands = self.frequency_bands[idx]
         else:
-            frequency_bands = None
-
-        # Add a channel dimension to the composite signal
-        composite_signal = np.expand_dims(composite_signal, axis=0)  # Shape: [1, signal_length]
-
+            frequency_bands = torch.zeros(1)
         return composite_signal, components, frequency_bands
