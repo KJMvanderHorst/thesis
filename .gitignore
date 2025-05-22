@@ -103,3 +103,6 @@ target/
 *.joblib
 *.sav
 *.pkl
+
+#ignore the wandb directory
+wandb/
