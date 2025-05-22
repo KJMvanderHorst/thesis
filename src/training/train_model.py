@@ -214,7 +214,17 @@ def train(cfg):
 
     # Define paths
     data_path = os.path.join(project_root, cfg.data_path)
-    model_save_path = os.path.join(project_root, cfg.params.model_save_path)
+    
+    # Save the trained model with the run name in src/models/
+    models_dir = os.path.join(project_root, "src", "models")
+    os.makedirs(models_dir, exist_ok=True)
+    if OmegaConf.select(cfg, "enabled") and wandb.run is not None:
+        run_name = wandb.run.name
+    else:
+        # Fallback: use experiment name or a generic name
+        run_name = getattr(cfg.run, "experiment_name", "final_model")
+    model_save_path = os.path.join(models_dir, f"{run_name}.pth")
+
 
     # Ensure the model save directory exists
     os.makedirs(os.path.dirname(model_save_path), exist_ok=True)
@@ -270,10 +280,9 @@ def train(cfg):
                     **test_results
                 }
             )
-    
-    # Save the trained model
+
     torch.save(model.state_dict(), model_save_path)
-    print(f"Model saved to {model_save_path}")
+    print(f"Final model saved to {model_save_path}")
 
     # Save training run losses
     save_training_run_losses()

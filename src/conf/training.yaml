@@ -1,6 +1,6 @@
 params:
   batch_size: 128
-  epochs: 20
+  epochs: 2
   num_workers: 4
   learning_rate: 1e-3
   loss_list:
@@ -10,7 +10,6 @@ params:
     - spectral_entropy
     - laplacian
     - ssft_coherence
-  model_save_path: models/testing_batches.pth
   predictions_save_path: src/data/testing_batches
   loss_weights:
     wavelet_coherence: 1.0
